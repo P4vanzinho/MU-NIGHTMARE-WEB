@@ -380,5 +380,5 @@ test('visitante consulta busca pública e status da integração simulada', asyn
   ).toBeVisible();
   await page.goto('/server');
   await expect(page.getByRole('heading', { name: 'Servidor' })).toBeVisible();
-  await expect(page.getByText('Simulado')).toBeVisible();
+  await expect(page.getByText('Simulado', { exact: true })).toBeVisible();
 });

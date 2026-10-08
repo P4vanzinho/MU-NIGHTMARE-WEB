@@ -19,7 +19,7 @@ function LoginPage() {
     const result = await authClient.signIn.email({
       email,
       password,
-      callbackURL: 'http://localhost:3000/account',
+      callbackURL: `${window.location.origin}/account`,
     });
     setIsSubmitting(false);
     if (result.error) {
