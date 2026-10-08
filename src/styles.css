@@ -401,6 +401,54 @@ h2 {
   color: #9996a1;
   font-size: 12px;
 }
+.admin-report-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+.admin-report-card {
+  gap: 14px;
+}
+.admin-report-card > div:first-child {
+  display: grid;
+  gap: 6px;
+}
+.admin-report-card span {
+  color: #9996a1;
+  font-size: 12px;
+}
+.admin-report-card p {
+  margin: 0;
+  color: #c5c1ca;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.admin-report-card label {
+  display: grid;
+  gap: 8px;
+  color: #d8d4db;
+  font-size: 13px;
+  font-weight: 600;
+}
+.admin-report-card select,
+.admin-report-card textarea {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #38353f;
+  border-radius: 7px;
+  color: #f5f5f7;
+  background: #151419;
+  font: inherit;
+}
+.admin-report-card textarea {
+  min-height: 90px;
+  resize: vertical;
+}
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -570,6 +618,9 @@ h2 {
     grid-template-columns: 1fr;
   }
   .news-post-preview {
+    grid-template-columns: 1fr;
+  }
+  .review-grid {
     grid-template-columns: 1fr;
   }
   .section-heading {

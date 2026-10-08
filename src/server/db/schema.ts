@@ -91,6 +91,12 @@ export const bugReport = pgTable('bug_report', {
   steps: text('steps').notNull(),
   impact: text('impact').notNull(),
   status: text('status').notNull().default('submitted'),
+  severity: text('severity'),
+  adminNote: text('admin_note'),
+  rewardStatus: text('reward_status').notNull().default('pending'),
+  rewardReason: text('reward_reason'),
+  reviewedBy: text('reviewed_by').references(() => user.id),
+  reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });

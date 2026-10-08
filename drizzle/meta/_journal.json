@@ -50,6 +50,13 @@
       "when": 1791471214640,
       "tag": "0006_last_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791471632191,
+      "tag": "0007_curly_payback",
+      "breakpoints": true
     }
   ]
 }

@@ -118,7 +118,12 @@ function BugReportPage() {
                       <strong>{report.title}</strong>
                       <span>{report.protocol}</span>
                     </div>
-                    <span>Status: {report.status}</span>
+                    <span>
+                      Status: {report.status}
+                      {report.severity ? ` · impacto ${report.severity}` : ''}
+                    </span>
+                    <span>Recompensa: {report.rewardStatus}</span>
+                    {report.adminNote && <p>{report.adminNote}</p>}
                     <time>
                       {new Date(report.createdAt).toLocaleDateString('pt-BR')}
                     </time>

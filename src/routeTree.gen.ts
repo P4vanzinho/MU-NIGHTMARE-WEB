@@ -21,6 +21,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
+import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as DevEmailOutboxRouteImport } from './routes/dev/email-outbox'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -85,6 +86,11 @@ const AdminNewsRoute = AdminNewsRouteImport.update({
   path: '/news',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const DevEmailOutboxRoute = DevEmailOutboxRouteImport.update({
   id: '/dev/email-outbox',
   path: '/dev/email-outbox',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/admin/comments'
     | '/admin/news'
+    | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/api/auth/$'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/admin/comments'
     | '/admin/news'
+    | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/api/auth/$'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/admin/comments'
     | '/admin/news'
+    | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/api/auth/$'
@@ -308,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNewsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/dev/email-outbox': {
       id: '/dev/email-outbox'
       path: '/dev/email-outbox'
@@ -335,11 +354,13 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminNewsRoute: typeof AdminNewsRoute
+  AdminReportsRoute: typeof AdminReportsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCommentsRoute: AdminCommentsRoute,
   AdminNewsRoute: AdminNewsRoute,
+  AdminReportsRoute: AdminReportsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

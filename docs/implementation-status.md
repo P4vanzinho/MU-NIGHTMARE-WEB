@@ -212,3 +212,29 @@ npm run test                -> passou
 npm run build               -> build client e SSR, passou
 Playwright                  -> aguardando PostgreSQL/Docker local
 ```
+
+## Fase 9 — análise administrativa e decisão de recompensa
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Painel `/admin/reports` com consulta administrativa dos reports.
+- Classificação de severidade e ciclo de status (`in_review`, `resolved`, `closed`).
+- Registro de análise administrativa e justificativa da decisão.
+- Decisão de recompensa (`pending`, `approved`, `denied`) persistida sem entrega de saldo.
+- Player acompanha status, severidade, análise e decisão apenas dos próprios reports.
+- Auditoria da revisão administrativa vinculada ao autor do report.
+- Migration `0007_curly_payback.sql` criada para os campos de análise.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
+
+A entrega efetiva de Nightmare Coins ou qualquer benefício continua deliberadamente fora desta fase.
