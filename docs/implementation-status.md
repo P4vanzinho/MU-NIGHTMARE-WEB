@@ -141,3 +141,28 @@ Playwright                  -> bloqueado: Docker/PostgreSQL indisponível nesta 
 ```
 
 O fluxo de QA precisa ser repetido com PostgreSQL disponível antes de marcar a fase como validada. A gestão continua restrita à conta do portal e não altera a autoridade de identidade do OpenMU.
+
+## Fase 6 — publicação e leitura de notícias
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Tabela `news_post` com slug único, resumo, conteúdo, categoria, capa, autoria e datas.
+- Feed público em `/news` e artigo permanente em `/news/:slug`.
+- Painel `/admin/news` para publicar, salvar rascunho e editar notícias preservando o ID.
+- Slug derivado do título com resolução de colisões.
+- Conteúdo renderizado como texto, sem execução de HTML arbitrário.
+- Playwright preparado para publicar uma notícia e ler o artigo público.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> 1 teste, passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
+
+Migration criada: `0004_long_overlord.sql`. A leitura e publicação precisam ser repetidas com o banco disponível antes de marcar a fase como validada.

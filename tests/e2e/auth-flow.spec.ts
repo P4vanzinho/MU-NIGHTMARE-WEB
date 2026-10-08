@@ -180,3 +180,37 @@ test('player solicita recuperação e define uma nova senha', async ({
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page).toHaveURL(/\/account$/);
 });
+
+test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
+  const adminEmail = process.env.E2E_ADMIN_EMAIL;
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+  test.skip(
+    !adminEmail || !adminPassword,
+    'Configure E2E_ADMIN_EMAIL e E2E_ADMIN_PASSWORD para o fluxo admin.',
+  );
+
+  await page.goto('/login');
+  await page.getByLabel('E-mail').fill(adminEmail ?? '');
+  await page.getByLabel('Senha').fill(adminPassword ?? '');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+
+  const title = `Atualização QA ${Date.now()}`;
+  await page.goto('/admin/news');
+  await page.getByLabel('Título').fill(title);
+  await page.getByLabel('Resumo').fill('Resumo da publicação de QA.');
+  await page
+    .getByLabel('Conteúdo')
+    .fill('Conteúdo completo da publicação de QA.');
+  await page.getByLabel('Categoria').fill('QA');
+  await page.getByRole('button', { name: 'Publicar' }).click();
+
+  await page.goto('/news');
+  const post = page.locator('.news-post-preview').filter({ hasText: title });
+  await expect(post).toBeVisible();
+  await post.getByRole('link', { name: 'Ler notícia' }).click();
+  await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  await expect(
+    page.getByText('Conteúdo completo da publicação de QA.'),
+  ).toBeVisible();
+});

@@ -72,6 +72,9 @@ function AdminPage() {
           <span>Próximos módulos</span>
           <strong>Notícias e reports</strong>
         </div>
+        <a className="button button-primary" href="/admin/news">
+          Gerenciar notícias
+        </a>
         <h2>Contas do portal</h2>
         <p className="form-help">
           Bloqueios afetam somente o acesso ao portal e encerram as sessões da

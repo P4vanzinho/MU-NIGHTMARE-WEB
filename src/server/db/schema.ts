@@ -26,3 +26,19 @@ export const adminAuditEvent = pgTable('admin_audit_event', {
   reason: text('reason').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
+
+export const newsPost = pgTable('news_post', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  excerpt: text('excerpt').notNull(),
+  content: text('content').notNull(),
+  category: text('category').notNull(),
+  coverImage: text('cover_image'),
+  authorId: text('author_id')
+    .notNull()
+    .references(() => user.id),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
