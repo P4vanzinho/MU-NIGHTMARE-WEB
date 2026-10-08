@@ -115,3 +115,29 @@ resultado                      -> 3 testes passaram
 ```
 
 O e-mail continua sendo capturado apenas localmente. Integração com provedor externo e recuperação compatível com a autoridade de credenciais OpenMU permanecem pendentes.
+
+## Fase 5 — administração de contas
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Lista administrativa de contas com papel, verificação, estado e motivo do bloqueio.
+- Bloqueio e desbloqueio protegidos por sessão `admin` no servidor.
+- Bloqueio encerra as sessões da conta e afeta somente o portal; não representa banimento no OpenMU.
+- Último administrador ativo não pode ser bloqueado; o próprio administrador também não pode bloquear a própria conta.
+- Auditoria persistida com ator, alvo, ação, motivo e data.
+- Migration `0003_petite_midnight.sql` criada para a tabela de auditoria.
+- Playwright preparado para verificar bloqueio, tentativa de login e desbloqueio.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> 1 teste, passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> bloqueado: Docker/PostgreSQL indisponível nesta sessão
+```
+
+O fluxo de QA precisa ser repetido com PostgreSQL disponível antes de marcar a fase como validada. A gestão continua restrita à conta do portal e não altera a autoridade de identidade do OpenMU.

@@ -1,12 +1,20 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-
+import { useState } from 'react';
+import {
+  getAdminAccounts,
+  updateAdminAccountStatus,
+} from '#/server/admin/accounts';
 import { getRequiredAdminSession } from '#/server/auth/session';
 import { PageShell } from '#/shared/layout/page-shell';
 
 export const Route = createFileRoute('/admin')({
   loader: async () => {
     try {
-      return await getRequiredAdminSession();
+      const [session, accounts] = await Promise.all([
+        getRequiredAdminSession(),
+        getAdminAccounts(),
+      ]);
+      return { session, accounts };
     } catch {
       throw redirect({ to: '/login' });
     }
@@ -15,7 +23,41 @@ export const Route = createFileRoute('/admin')({
 });
 
 function AdminPage() {
-  const session = Route.useLoaderData();
+  const { session, accounts } = Route.useLoaderData();
+  const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  async function handleStatusChange(
+    accountId: string,
+    action: 'ban' | 'unban',
+  ) {
+    const reason = reasons[accountId]?.trim() ?? '';
+    if (reason.length < 3) {
+      setError('Informe um motivo com pelo menos 3 caracteres.');
+      return;
+    }
+    setPendingId(accountId);
+    setMessage(null);
+    setError(null);
+    try {
+      await updateAdminAccountStatus({
+        data: { userId: accountId, action, reason },
+      });
+      setMessage(action === 'ban' ? 'Conta bloqueada.' : 'Conta desbloqueada.');
+      window.location.reload();
+    } catch (statusError) {
+      setError(
+        statusError instanceof Error
+          ? statusError.message
+          : 'Não foi possível atualizar a conta.',
+      );
+    } finally {
+      setPendingId(null);
+    }
+  }
+
   return (
     <PageShell>
       <section className="form-section">
@@ -30,6 +72,73 @@ function AdminPage() {
           <span>Próximos módulos</span>
           <strong>Notícias e reports</strong>
         </div>
+        <h2>Contas do portal</h2>
+        <p className="form-help">
+          Bloqueios afetam somente o acesso ao portal e encerram as sessões da
+          conta. Eles não banem o jogador no OpenMU.
+        </p>
+        <div className="admin-account-list">
+          {accounts.map((account) => {
+            const isPending = pendingId === account.id;
+            return (
+              <article
+                className="account-card admin-account-card"
+                key={account.id}
+              >
+                <div>
+                  <strong>{account.name}</strong>
+                  <span>{account.email}</span>
+                  <span>
+                    {account.role} · {account.banned ? 'bloqueada' : 'ativa'}
+                  </span>
+                  {account.banned && account.banReason && (
+                    <span>Motivo: {account.banReason}</span>
+                  )}
+                </div>
+                <label>
+                  Motivo da decisão
+                  <input
+                    value={reasons[account.id] ?? ''}
+                    onChange={(event) =>
+                      setReasons((current) => ({
+                        ...current,
+                        [account.id]: event.target.value,
+                      }))
+                    }
+                    placeholder="Ex.: comportamento abusivo"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  disabled={isPending || account.id === session.user.id}
+                  onClick={() =>
+                    handleStatusChange(
+                      account.id,
+                      account.banned ? 'unban' : 'ban',
+                    )
+                  }
+                >
+                  {isPending
+                    ? 'Salvando...'
+                    : account.banned
+                      ? 'Desbloquear'
+                      : 'Bloquear'}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+        {message && (
+          <p className="form-success" role="status">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
       </section>
     </PageShell>
   );

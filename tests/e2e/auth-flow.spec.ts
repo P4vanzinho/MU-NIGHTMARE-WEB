@@ -65,6 +65,53 @@ test('admin autenticado acessa o painel administrativo', async ({ page }) => {
   await page.goto('/admin');
   await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible();
   await expect(page.getByText('admin', { exact: true })).toBeVisible();
+
+  const email = `managed-${Date.now()}@example.test`;
+  const signup = await page.request.post('/api/auth/sign-up/email', {
+    data: { name: 'Managed QA', email, password: 'nightmare123' },
+  });
+  expect(signup.ok()).toBeTruthy();
+
+  await page.goto('/dev/email-outbox');
+  const verificationEmail = page
+    .locator('.outbox-card')
+    .filter({ hasText: email })
+    .last();
+  const verificationHref = await verificationEmail
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(verificationHref).toBeTruthy();
+  const verificationResponse = await page.request.get(verificationHref ?? '');
+  expect(verificationResponse.ok()).toBeTruthy();
+
+  await page.goto('/admin');
+  const account = page
+    .locator('.admin-account-card')
+    .filter({ hasText: email });
+  await account.getByLabel('Motivo da decisão').fill('Teste de bloqueio');
+  await account.getByRole('button', { name: 'Bloquear' }).click();
+  await expect(
+    page.locator('.admin-account-card').filter({ hasText: email }),
+  ).toContainText('bloqueada');
+
+  const playerPage = await page.context().newPage();
+  await playerPage.goto('/login');
+  await playerPage.getByLabel('E-mail').fill(email);
+  await playerPage.getByLabel('Senha').fill('nightmare123');
+  await playerPage.getByRole('button', { name: 'Entrar' }).click();
+  await expect(playerPage.getByRole('alert')).toContainText(/bloquead|banid/i);
+  await playerPage.close();
+
+  const blockedAccount = page
+    .locator('.admin-account-card')
+    .filter({ hasText: email });
+  await blockedAccount
+    .getByLabel('Motivo da decisão')
+    .fill('Revisão concluída');
+  await blockedAccount.getByRole('button', { name: 'Desbloquear' }).click();
+  await expect(
+    page.locator('.admin-account-card').filter({ hasText: email }),
+  ).toContainText('ativa');
 });
 
 test('player solicita recuperação e define uma nova senha', async ({
