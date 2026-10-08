@@ -301,3 +301,43 @@ test('player curte e comenta, admin modera o comentário', async ({ page }) => {
   await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
   await playerPage.close();
 });
+
+test('player envia report e acompanha somente o próprio protocolo', async ({
+  page,
+}) => {
+  const email = `reporter-${Date.now()}@example.test`;
+  const title = `Bug QA ${Date.now()}`;
+  const signup = await page.request.post('/api/auth/sign-up/email', {
+    data: { name: 'Reporter QA', email, password: 'nightmare123' },
+  });
+  expect(signup.ok()).toBeTruthy();
+  await page.goto('/dev/email-outbox');
+  const verificationEmail = page
+    .locator('.outbox-card')
+    .filter({ hasText: email })
+    .last();
+  const verificationHref = await verificationEmail
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(verificationHref).toBeTruthy();
+  const verificationResponse = await page.request.get(verificationHref ?? '');
+  expect(verificationResponse.ok()).toBeTruthy();
+
+  await page.goto('/login');
+  await page.getByLabel('E-mail').fill(email);
+  await page.getByLabel('Senha').fill('nightmare123');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+  await page.goto('/bugreport');
+  await page.getByLabel('Título').fill(title);
+  await page
+    .getByLabel('Passos para reproduzir')
+    .fill('Abrir o inventário e equipar o item.');
+  await page
+    .getByLabel('Impacto observado')
+    .fill('O item não aparece no personagem.');
+  await page.getByRole('button', { name: 'Enviar report' }).click();
+  await expect(page.getByRole('status')).toContainText('Report enviado');
+  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(/NM-\d{8}-[A-Z0-9]{8}/)).toBeVisible();
+});

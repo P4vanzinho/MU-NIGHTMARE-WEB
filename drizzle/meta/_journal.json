@@ -43,6 +43,13 @@
       "when": 1791463875057,
       "tag": "0005_furry_bill_hollister",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791471214640,
+      "tag": "0006_last_black_knight",
+      "breakpoints": true
     }
   ]
 }

@@ -359,6 +359,48 @@ h2 {
 .admin-comment-list {
   margin-top: 28px;
 }
+.report-page {
+  width: min(760px, 100%);
+  margin: 0 auto;
+}
+.report-form textarea {
+  min-height: 140px;
+  padding: 12px 14px;
+  border: 1px solid #38353f;
+  border-radius: 7px;
+  color: #f5f5f7;
+  background: #151419;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+.report-form textarea:focus {
+  outline: 1px solid #82745e;
+  outline-offset: 2px;
+}
+.report-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+.report-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #29272e;
+  border-radius: 8px;
+  background: #151419;
+}
+.report-card > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.report-card span,
+.report-card time {
+  color: #9996a1;
+  font-size: 12px;
+}
 .site-footer {
   display: flex;
   justify-content: space-between;

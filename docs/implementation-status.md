@@ -189,3 +189,26 @@ npm run test                -> passou
 npm run build               -> build client e SSR, passou
 Playwright                  -> aguardando PostgreSQL/Docker local
 ```
+
+## Fase 8 — envio e acompanhamento de reports
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Formulário autenticado em `/bugreport` com título, passos e impacto.
+- Protocolo único persistido para cada report.
+- Lista de reports do próprio player, sem consulta cruzada entre contas.
+- Estados iniciais preparados para a análise administrativa da Fase 9.
+- Migration `0006_last_black_knight.sql` criada para `bug_report`.
+- Playwright preparado para envio e acompanhamento do protocolo.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```

@@ -80,3 +80,17 @@ export const newsLike = pgTable(
     uniqueIndex('news_like_post_user_idx').on(table.postId, table.userId),
   ],
 );
+
+export const bugReport = pgTable('bug_report', {
+  id: text('id').primaryKey(),
+  protocol: text('protocol').notNull().unique(),
+  reporterId: text('reporter_id')
+    .notNull()
+    .references(() => user.id),
+  title: text('title').notNull(),
+  steps: text('steps').notNull(),
+  impact: text('impact').notNull(),
+  status: text('status').notNull().default('submitted'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});

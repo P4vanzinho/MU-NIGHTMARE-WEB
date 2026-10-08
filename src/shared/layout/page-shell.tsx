@@ -14,6 +14,7 @@ export function PageShell({ children }: { children: ReactNode }) {
           <a href="/server">Servidor</a>
           <a href="/news">Notícias</a>
           <a href="/ranking">Ranking</a>
+          <a href="/bugreport">Reportar bug</a>
           <a href="/login">Entrar</a>
         </nav>
       </header>
