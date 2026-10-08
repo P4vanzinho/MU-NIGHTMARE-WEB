@@ -4,7 +4,7 @@ Atualizado em 08/10/2026.
 
 ## Fase 1 — primeiro fluxo público persistido
 
-Estado: parcialmente validada localmente.
+Estado: validada localmente.
 
 Entregue:
 
@@ -21,9 +21,9 @@ Entregue:
 Pendências desta fase:
 
 - O Docker não está disponível neste ambiente WSL (`docker` não encontrado); o container PostgreSQL não foi iniciado nem validado aqui.
-- O primeiro snapshot ainda lê configurações de notícia do armazenamento local do simulador para permitir a demonstração sem um banco disponível. Isso é explicitamente temporário e não é fallback silencioso da integração real.
-- A leitura e gravação do snapshot via Drizzle/PostgreSQL será concluída assim que o Docker estiver disponível.
-- Migrações e conexão real ainda não foram executadas.
+- O snapshot agora lê a configuração persistida no PostgreSQL através do Drizzle.
+- A inicialização cria somente a configuração padrão ausente; não substitui dados existentes.
+- O simulador OpenMU continua separado e explícito; ele ainda não representa a integração real com o jogo.
 
 Evidências verificadas:
 
@@ -33,6 +33,7 @@ npm run check      -> passou
 npm run test       -> 1 teste, passou
 npm run build      -> build client e SSR, passou
 SSR localhost     -> conteúdo do servidor e notícias renderizado
+Docker/PostgreSQL -> container iniciado e migration aplicada
 ```
 
-Próximo passo: subir PostgreSQL via `docker compose up -d postgres`, aplicar a migration Drizzle e trocar o repositório temporário de configurações pelo repositório PostgreSQL, mantendo o modo simulado do OpenMU.
+Próximo passo: criar a primeira tela administrativa para editar as configurações persistidas, mantendo o modo simulado do OpenMU.

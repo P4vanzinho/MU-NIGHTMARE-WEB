@@ -1,5 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { eq } from 'drizzle-orm';
+
+import { db } from '../db/client';
+import { siteSettings } from '../db/schema';
 
 export type NewsPreview = {
   id: string;
@@ -7,8 +9,9 @@ export type NewsPreview = {
   category: string;
   publishedAt: string;
 };
+
 type SiteSettings = { news: NewsPreview[] };
-const dataFile = resolve(process.cwd(), '.local-data/site-settings.json');
+
 const defaultSettings: SiteSettings = {
   news: [
     {
@@ -27,15 +30,19 @@ const defaultSettings: SiteSettings = {
 };
 
 export async function readSiteSettings(): Promise<SiteSettings> {
-  try {
-    return JSON.parse(await readFile(dataFile, 'utf8')) as SiteSettings;
-  } catch (error) {
-    if (!isMissingFile(error)) throw error;
-    await mkdir(dirname(dataFile), { recursive: true });
-    await writeFile(dataFile, `${JSON.stringify(defaultSettings, null, 2)}\n`);
-    return defaultSettings;
-  }
-}
-function isMissingFile(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && 'code' in error && error.code === 'ENOENT';
+  await db
+    .insert(siteSettings)
+    .values({ id: 'portal', news: defaultSettings.news, updatedAt: new Date() })
+    .onConflictDoNothing();
+  const [settings] = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.id, 'portal'))
+    .limit(1);
+
+  if (!settings)
+    throw new Error(
+      'Configuração do portal não encontrada após a inicialização',
+    );
+  return { news: settings.news as NewsPreview[] };
 }
