@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: mu-nightmare-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mu_nightmare
+      POSTGRES_USER: mu
+      POSTGRES_PASSWORD: mu
+    ports:
+      - '5432:5432'
+    volumes:
+      - mu-nightmare-postgres:/var/lib/postgresql/data
+volumes:
+  mu-nightmare-postgres:
