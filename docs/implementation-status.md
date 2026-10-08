@@ -91,3 +91,27 @@ player -> /admin                 -> redireciona para /login
 ```
 
 O script de admin não possui credenciais padrão; o ambiente deve sempre fornecer `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
+
+## Fase 4 — recuperação e troca de senha
+
+Estado: validada localmente.
+
+Entregue:
+
+- Solicitação de recuperação em `/forgot-password` com resposta genérica para não enumerar contas.
+- Link de recuperação capturado no outbox local.
+- Nova senha em `/reset-password` com token de uso único do Better Auth.
+- Revogação das outras sessões ao redefinir ou alterar a senha.
+- Troca de senha dentro de `/account`, exigindo a senha atual.
+- Testes para token inválido e confirmação de senha divergente no formulário.
+
+QA Playwright executado:
+
+```text
+player flow                    -> cadastro, confirmação, login, troca de senha e logout
+admin flow                     -> login e acesso ao painel
+password recovery flow         -> solicitação, link local, redefinição e novo login
+resultado                      -> 3 testes passaram
+```
+
+O e-mail continua sendo capturado apenas localmente. Integração com provedor externo e recuperação compatível com a autoridade de credenciais OpenMU permanecem pendentes.

@@ -27,7 +27,12 @@ function EmailOutboxPage() {
                 className="outbox-card"
                 key={`${email.email}-${email.sentAt}`}
               >
-                <strong>{email.email}</strong>
+                <strong>
+                  {email.type === 'password-reset'
+                    ? 'Recuperação de senha'
+                    : 'Confirmação de e-mail'}{' '}
+                  · {email.email}
+                </strong>
                 <time>{new Date(email.sentAt).toLocaleString('pt-BR')}</time>
                 <a href={email.url}>Confirmar endereço</a>
                 <code>{email.url}</code>

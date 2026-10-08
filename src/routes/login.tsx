@@ -70,6 +70,9 @@ function LoginPage() {
         <p className="form-help">
           Ainda não tem conta? <a href="/register">Criar conta</a>
         </p>
+        <p className="form-help">
+          <a href="/forgot-password">Esqueci minha senha</a>
+        </p>
       </section>
     </PageShell>
   );

@@ -4,13 +4,20 @@ import { admin } from 'better-auth/plugins';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import * as authSchema from '../db/auth-schema';
 import { db } from '../db/client';
-import { captureVerificationEmail } from './email-capture';
+import {
+  capturePasswordResetEmail,
+  captureVerificationEmail,
+} from './email-capture';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'pg', schema: authSchema }),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      await capturePasswordResetEmail({ email: user.email, url });
+    },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {

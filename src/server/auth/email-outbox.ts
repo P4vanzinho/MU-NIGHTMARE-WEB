@@ -1,7 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-export type CapturedEmail = { email: string; url: string; sentAt: string };
+import type { CapturedEmail } from './email-capture';
+
 const outboxFile = resolve(process.cwd(), '.local-data/email-outbox.jsonl');
 
 export async function readCapturedEmails(): Promise<CapturedEmail[]> {
