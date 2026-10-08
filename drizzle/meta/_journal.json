@@ -64,6 +64,13 @@
       "when": 1791472070966,
       "tag": "0008_yellow_lila_cheney",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791480304439,
+      "tag": "0009_pink_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

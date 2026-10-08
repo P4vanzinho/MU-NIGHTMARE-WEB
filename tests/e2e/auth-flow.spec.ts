@@ -40,6 +40,10 @@ test('player cria conta, confirma e-mail, entra e encerra sessão', async ({
   await expect(
     page.getByRole('heading', { name: 'Olá, Player QA' }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Personagens' }),
+  ).toBeVisible();
+  await expect(page.getByText('Nightmare Coins')).toBeVisible();
 
   await page.getByLabel('Senha atual').fill('nightmare123');
   await page.getByLabel('Nova senha').fill('nightmare456');
@@ -356,4 +360,13 @@ test('visitante consulta ranking, busca e abre perfil público', async ({
   await expect(page.locator('.ranking-row')).toHaveCount(2);
   await page.locator('.ranking-row').first().getByRole('link').click();
   await expect(page.getByRole('heading', { name: /Vex|Luna/ })).toBeVisible();
+});
+
+test('visitante consulta a agenda simulada de eventos', async ({ page }) => {
+  await page.goto('/events');
+  await expect(
+    page.getByRole('heading', { name: 'Próximos eventos' }),
+  ).toBeVisible();
+  await expect(page.locator('.event-card')).toHaveCount(3);
+  await expect(page.getByText('Blood Castle')).toBeVisible();
 });

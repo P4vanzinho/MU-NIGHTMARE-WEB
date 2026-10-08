@@ -263,3 +263,48 @@ Playwright                  -> aguardando PostgreSQL/Docker local
 ```
 
 A edição de visibilidade e a substituição pelo ranking real do OpenMU permanecem pendentes das fases de integração.
+
+## Fase 11 — agenda e contador de eventos
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Agenda simulada persistida com três eventos e horários UTC.
+- Página `/events` com duração, multiplicador e programação de cada evento.
+- Aviso explícito de que a agenda não confirma execução real no jogo.
+- Migration `0009_pink_scarlet_witch.sql` criada junto com os dados simulados da Fase 12.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
+
+## Fase 12 — conta, personagens e cofres somente leitura
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Personagens, itens do cofre, Nightmare Coins e VIP simulados por conta.
+- Dados criados sob demanda para o player autenticado e protegidos por `ownerId` no backend.
+- Exibição somente leitura na área `/account`.
+- Nenhuma alteração de personagem, transferência, débito ou cobrança foi criada.
+- Falhas de consulta não são convertidas silenciosamente em saldos zerados.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
+
+A integração desses dados com o OpenMU real continua pendente da Fase 16.

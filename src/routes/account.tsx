@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { getCurrentSession } from '#/server/auth/session';
+import { getMyGameProfile } from '#/server/game-profile/profile';
 import { authClient } from '#/shared/auth/auth-client';
 import { PageShell } from '#/shared/layout/page-shell';
 
@@ -9,13 +10,14 @@ export const Route = createFileRoute('/account')({
   loader: async () => {
     const session = await getCurrentSession();
     if (!session) throw redirect({ to: '/login' });
-    return session;
+    const gameProfile = await getMyGameProfile();
+    return { session, gameProfile };
   },
   component: AccountPage,
 });
 
 function AccountPage() {
-  const session = Route.useLoaderData();
+  const { session, gameProfile } = Route.useLoaderData();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
@@ -115,6 +117,49 @@ function AccountPage() {
             </p>
           )}
         </form>
+        <section
+          className="account-game-section"
+          aria-labelledby="characters-heading"
+        >
+          <h2 id="characters-heading">Personagens</h2>
+          <div className="character-list">
+            {gameProfile.characters.map((character) => (
+              <article className="character-card" key={character.id}>
+                <strong>{character.name}</strong>
+                <span>{character.characterClass}</span>
+                <span>Nível {character.level}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section
+          className="account-game-section"
+          aria-labelledby="wallet-heading"
+        >
+          <h2 id="wallet-heading">Saldos e cofres</h2>
+          <div className="stat-grid account-stat-grid">
+            <div className="stat-card">
+              <span>Nightmare Coins</span>
+              <strong>{gameProfile.wallet.nightmareCoins}</strong>
+            </div>
+            <div className="stat-card">
+              <span>VIP</span>
+              <strong>{gameProfile.wallet.vipLevel}</strong>
+            </div>
+          </div>
+          <div className="vault-list">
+            {gameProfile.vault.map((item) => (
+              <div className="vault-item" key={item.id}>
+                <span>{item.itemName}</span>
+                <strong>x{item.quantity}</strong>
+              </div>
+            ))}
+          </div>
+          <p className="form-help">
+            Consulta somente leitura. Transferências e débitos ainda não estão
+            disponíveis.
+          </p>
+        </section>
       </section>
     </PageShell>
   );

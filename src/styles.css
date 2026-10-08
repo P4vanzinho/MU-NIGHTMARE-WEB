@@ -499,6 +499,74 @@ h2 {
   gap: 12px;
   margin: 30px 0;
 }
+.events-page {
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+.event-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+.event-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 20px;
+  border: 1px solid #29272e;
+  border-radius: 8px;
+  background: #151419;
+}
+.event-card h2 {
+  margin: 8px 0;
+}
+.event-card p {
+  margin: 0;
+  color: #aaa8b1;
+  line-height: 1.5;
+}
+.event-card span,
+.event-time {
+  color: #9996a1;
+  font-size: 12px;
+}
+.event-time {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  min-width: 150px;
+  text-align: right;
+}
+.account-game-section {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid #29272e;
+}
+.character-list,
+.vault-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.character-card,
+.vault-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #29272e;
+  border-radius: 8px;
+  background: #151419;
+}
+.character-card span,
+.vault-item span {
+  color: #9996a1;
+  font-size: 12px;
+}
+.account-stat-grid {
+  margin-top: 18px;
+}
 .profile-stats strong {
   font-size: 22px;
 }
@@ -740,6 +808,13 @@ h2 {
   }
   .profile-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .event-card {
+    flex-direction: column;
+  }
+  .event-time {
+    min-width: 0;
+    text-align: left;
   }
   .section-heading {
     align-items: start;

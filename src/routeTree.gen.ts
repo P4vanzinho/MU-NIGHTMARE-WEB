@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BugreportRouteImport } from './routes/bugreport'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
@@ -46,6 +47,11 @@ const AdminRoute = AdminRouteImport.update({
 const BugreportRoute = BugreportRouteImport.update({
   id: '/bugreport',
   path: '/bugreport',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
+  '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
+  '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
+  '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/bugreport'
+    | '/events'
     | '/forgot-password'
     | '/login'
     | '/news'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/bugreport'
+    | '/events'
     | '/forgot-password'
     | '/login'
     | '/news'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/bugreport'
+    | '/events'
     | '/forgot-password'
     | '/login'
     | '/news'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRouteWithChildren
   BugreportRoute: typeof BugreportRoute
+  EventsRoute: typeof EventsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewsRoute: typeof NewsRouteWithChildren
@@ -287,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/bugreport'
       fullPath: '/bugreport'
       preLoaderRoute: typeof BugreportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -430,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AdminRoute: AdminRouteWithChildren,
   BugreportRoute: BugreportRoute,
+  EventsRoute: EventsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewsRoute: NewsRouteWithChildren,

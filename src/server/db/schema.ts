@@ -111,3 +111,43 @@ export const simulatedPlayer = pgTable('simulated_player', {
   visibility: text('visibility').notNull().default('public'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
+
+export const simulatedEvent = pgTable('simulated_event', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  startsAt: timestamp('starts_at', { withTimezone: true }).notNull(),
+  endsAt: timestamp('ends_at', { withTimezone: true }).notNull(),
+  multiplier: integer('multiplier'),
+});
+
+export const simulatedCharacter = pgTable('simulated_character', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  characterClass: text('character_class').notNull(),
+  level: integer('level').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const simulatedVaultItem = pgTable('simulated_vault_item', {
+  id: text('id').primaryKey(),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  itemName: text('item_name').notNull(),
+  quantity: integer('quantity').notNull(),
+  location: text('location').notNull().default('vault'),
+});
+
+export const simulatedPlayerWallet = pgTable('simulated_player_wallet', {
+  ownerId: text('owner_id')
+    .primaryKey()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  nightmareCoins: integer('nightmare_coins').notNull().default(0),
+  vipLevel: integer('vip_level').notNull().default(0),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
