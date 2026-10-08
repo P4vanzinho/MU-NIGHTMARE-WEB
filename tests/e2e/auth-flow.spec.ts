@@ -214,3 +214,90 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
     page.getByText('Conteúdo completo da publicação de QA.'),
   ).toBeVisible();
 });
+
+test('player curte e comenta, admin modera o comentário', async ({ page }) => {
+  const adminEmail = process.env.E2E_ADMIN_EMAIL;
+  const adminPassword = process.env.E2E_ADMIN_PASSWORD;
+  test.skip(
+    !adminEmail || !adminPassword,
+    'Configure E2E_ADMIN_EMAIL e E2E_ADMIN_PASSWORD para o fluxo admin.',
+  );
+
+  await page.goto('/login');
+  await page.getByLabel('E-mail').fill(adminEmail ?? '');
+  await page.getByLabel('Senha').fill(adminPassword ?? '');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+
+  const title = `Interações QA ${Date.now()}`;
+  await page.goto('/admin/news');
+  await page.getByLabel('Título').fill(title);
+  await page.getByLabel('Resumo').fill('Resumo das interações de QA.');
+  await page.getByLabel('Conteúdo').fill('Conteúdo das interações de QA.');
+  await page.getByLabel('Categoria').fill('QA');
+  await page.getByRole('button', { name: 'Publicar' }).click();
+
+  const playerEmail = `commenter-${Date.now()}@example.test`;
+  const signup = await page.request.post('/api/auth/sign-up/email', {
+    data: {
+      name: 'Commenter QA',
+      email: playerEmail,
+      password: 'nightmare123',
+    },
+  });
+  expect(signup.ok()).toBeTruthy();
+  await page.goto('/dev/email-outbox');
+  const verificationEmail = page
+    .locator('.outbox-card')
+    .filter({ hasText: playerEmail })
+    .last();
+  const verificationHref = await verificationEmail
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(verificationHref).toBeTruthy();
+  const verificationResponse = await page.request.get(verificationHref ?? '');
+  expect(verificationResponse.ok()).toBeTruthy();
+
+  const playerPage = await page.context().newPage();
+  await playerPage.goto('/login');
+  await playerPage.getByLabel('E-mail').fill(playerEmail);
+  await playerPage.getByLabel('Senha').fill('nightmare123');
+  await playerPage.getByRole('button', { name: 'Entrar' }).click();
+  await expect(playerPage).toHaveURL(/\/account$/);
+  await playerPage.goto('/news');
+  await playerPage
+    .locator('.news-post-preview')
+    .filter({ hasText: title })
+    .getByRole('link', { name: 'Ler notícia' })
+    .click();
+  await playerPage.getByRole('button', { name: /Curtir · 0/ }).click();
+  await expect(
+    playerPage.getByRole('button', { name: /Descurtir · 1/ }),
+  ).toBeVisible();
+  await playerPage
+    .getByLabel('Escreva um comentário')
+    .fill('Comentário de QA.');
+  await playerPage.getByRole('button', { name: 'Comentar' }).click();
+  await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
+
+  await page.goto('/admin/comments');
+  const comment = page
+    .locator('.comment-card')
+    .filter({ hasText: 'Comentário de QA.' });
+  await comment.getByLabel('Motivo da decisão').fill('Moderação de QA');
+  await comment.getByRole('button', { name: 'Ocultar' }).click();
+  await expect(
+    page.locator('.comment-card').filter({ hasText: 'Comentário de QA.' }),
+  ).toContainText('Oculto');
+  await playerPage.reload();
+  await expect(playerPage.getByText('Comentário de QA.')).toHaveCount(0);
+
+  const hiddenComment = page
+    .locator('.comment-card')
+    .filter({ hasText: 'Comentário de QA.' });
+  await hiddenComment.getByLabel('Motivo da decisão').fill('Conteúdo revisado');
+  await hiddenComment.getByRole('button', { name: 'Restaurar' }).click();
+  await playerPage.reload();
+  await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
+  await playerPage.close();
+});

@@ -1,11 +1,19 @@
 import { createServerFn } from '@tanstack/react-start';
-import { and, desc, eq, isNotNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
-import { getRequiredAdminSession } from '#/server/auth/session';
+import {
+  getCurrentSession,
+  getRequiredAdminSession,
+} from '#/server/auth/session';
 import { user } from '#/server/db/auth-schema';
 import { db } from '#/server/db/client';
-import { newsPost } from '#/server/db/schema';
+import {
+  adminAuditEvent,
+  newsComment,
+  newsLike,
+  newsPost,
+} from '#/server/db/schema';
 
 const postInput = z.object({
   title: z.string().trim().min(3).max(140),
@@ -17,6 +25,19 @@ const postInput = z.object({
 });
 
 const updateInput = postInput.extend({ id: z.string().min(1) });
+const likeInput = z.object({
+  slug: z.string().min(1),
+  liked: z.boolean(),
+});
+const commentInput = z.object({
+  slug: z.string().min(1),
+  body: z.string().trim().min(2).max(2_000),
+});
+const moderateCommentInput = z.object({
+  commentId: z.string().min(1),
+  status: z.enum(['visible', 'hidden']),
+  reason: z.string().trim().min(3).max(500),
+});
 
 export type NewsPostSummary = {
   id: string;
@@ -33,9 +54,26 @@ export type NewsPostDetail = NewsPostSummary & {
   authorName: string;
   createdAt: string;
   updatedAt: string;
+  likeCount: number;
+  likedByViewer: boolean;
+  comments: NewsCommentView[];
 };
 
 export type AdminNewsPost = NewsPostSummary & { content: string };
+
+export type NewsCommentView = {
+  id: string;
+  body: string;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+};
+
+export type AdminComment = NewsCommentView & {
+  postId: string;
+  postTitle: string;
+  status: string;
+};
 
 function toSummary(post: typeof newsPost.$inferSelect): NewsPostSummary {
   return {
@@ -99,12 +137,52 @@ export const getNewsPost = createServerFn({ method: 'GET' })
       .where(and(eq(newsPost.slug, data.slug), isNotNull(newsPost.publishedAt)))
       .limit(1);
     if (!post) return null;
+    const viewer = await getCurrentSession();
+    const comments = await db
+      .select({
+        id: newsComment.id,
+        body: newsComment.body,
+        authorId: newsComment.authorId,
+        authorName: user.name,
+        createdAt: newsComment.createdAt,
+      })
+      .from(newsComment)
+      .innerJoin(user, eq(newsComment.authorId, user.id))
+      .where(
+        and(
+          eq(newsComment.postId, post.post.id),
+          eq(newsComment.status, 'visible'),
+        ),
+      )
+      .orderBy(asc(newsComment.createdAt));
+    const [{ count: likeCount }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(newsLike)
+      .where(eq(newsLike.postId, post.post.id));
+    const viewerLike = viewer
+      ? await db
+          .select({ id: newsLike.id })
+          .from(newsLike)
+          .where(
+            and(
+              eq(newsLike.postId, post.post.id),
+              eq(newsLike.userId, viewer.user.id),
+            ),
+          )
+          .limit(1)
+      : [];
     return {
       ...toSummary(post.post),
       content: post.post.content,
       authorName: post.authorName,
       createdAt: post.post.createdAt.toISOString(),
       updatedAt: post.post.updatedAt.toISOString(),
+      likeCount: Number(likeCount),
+      likedByViewer: viewerLike.length > 0,
+      comments: comments.map((comment) => ({
+        ...comment,
+        createdAt: comment.createdAt.toISOString(),
+      })),
     };
   });
 
@@ -169,4 +247,129 @@ export const updateNewsPost = createServerFn({ method: 'POST' })
       .where(eq(newsPost.id, data.id))
       .returning();
     return toSummary(post);
+  });
+
+export const setNewsLike = createServerFn({ method: 'POST' })
+  .validator(likeInput)
+  .handler(async ({ data }) => {
+    const viewer = await getCurrentSession();
+    if (!viewer) throw new Error('Entre para interagir com a notícia.');
+    const [post] = await db
+      .select({ id: newsPost.id })
+      .from(newsPost)
+      .where(and(eq(newsPost.slug, data.slug), isNotNull(newsPost.publishedAt)))
+      .limit(1);
+    if (!post) throw new Error('Notícia não encontrada.');
+
+    if (data.liked) {
+      await db
+        .insert(newsLike)
+        .values({
+          id: crypto.randomUUID(),
+          postId: post.id,
+          userId: viewer.user.id,
+          createdAt: new Date(),
+        })
+        .onConflictDoNothing();
+    } else {
+      await db
+        .delete(newsLike)
+        .where(
+          and(
+            eq(newsLike.postId, post.id),
+            eq(newsLike.userId, viewer.user.id),
+          ),
+        );
+    }
+    return { liked: data.liked };
+  });
+
+export const createNewsComment = createServerFn({ method: 'POST' })
+  .validator(commentInput)
+  .handler(async ({ data }) => {
+    const viewer = await getCurrentSession();
+    if (!viewer) throw new Error('Entre para comentar.');
+    const [post] = await db
+      .select({ id: newsPost.id })
+      .from(newsPost)
+      .where(and(eq(newsPost.slug, data.slug), isNotNull(newsPost.publishedAt)))
+      .limit(1);
+    if (!post) throw new Error('Notícia não encontrada.');
+    await db.insert(newsComment).values({
+      id: crypto.randomUUID(),
+      postId: post.id,
+      authorId: viewer.user.id,
+      body: data.body,
+      status: 'visible',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { ok: true };
+  });
+
+export const removeNewsComment = createServerFn({ method: 'POST' })
+  .validator(z.object({ commentId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const viewer = await getCurrentSession();
+    if (!viewer) throw new Error('Entre para remover um comentário.');
+    const [comment] = await db
+      .select({ authorId: newsComment.authorId })
+      .from(newsComment)
+      .where(eq(newsComment.id, data.commentId))
+      .limit(1);
+    if (!comment || comment.authorId !== viewer.user.id) {
+      throw new Error('Você só pode remover seus próprios comentários.');
+    }
+    await db.delete(newsComment).where(eq(newsComment.id, data.commentId));
+    return { ok: true };
+  });
+
+export const getAdminComments = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<AdminComment[]> => {
+    await getRequiredAdminSession();
+    const comments = await db
+      .select({
+        id: newsComment.id,
+        body: newsComment.body,
+        authorId: newsComment.authorId,
+        authorName: user.name,
+        createdAt: newsComment.createdAt,
+        postId: newsPost.id,
+        postTitle: newsPost.title,
+        status: newsComment.status,
+      })
+      .from(newsComment)
+      .innerJoin(user, eq(newsComment.authorId, user.id))
+      .innerJoin(newsPost, eq(newsComment.postId, newsPost.id))
+      .orderBy(desc(newsComment.createdAt));
+    return comments.map((comment) => ({
+      ...comment,
+      createdAt: comment.createdAt.toISOString(),
+    }));
+  },
+);
+
+export const moderateNewsComment = createServerFn({ method: 'POST' })
+  .validator(moderateCommentInput)
+  .handler(async ({ data }) => {
+    const adminSession = await getRequiredAdminSession();
+    const [comment] = await db
+      .select({ authorId: newsComment.authorId })
+      .from(newsComment)
+      .where(eq(newsComment.id, data.commentId))
+      .limit(1);
+    if (!comment) throw new Error('Comentário não encontrado.');
+    await db
+      .update(newsComment)
+      .set({ status: data.status, updatedAt: new Date() })
+      .where(eq(newsComment.id, data.commentId));
+    await db.insert(adminAuditEvent).values({
+      id: crypto.randomUUID(),
+      actorUserId: adminSession.user.id,
+      targetUserId: comment.authorId,
+      action: data.status === 'hidden' ? 'comment.hidden' : 'comment.restored',
+      reason: data.reason,
+      createdAt: new Date(),
+    });
+    return { ok: true };
   });

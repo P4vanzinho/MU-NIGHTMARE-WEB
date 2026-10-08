@@ -18,6 +18,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
 import { Route as DevEmailOutboxRouteImport } from './routes/dev/email-outbox'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
@@ -68,6 +69,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCommentsRoute = AdminCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNewsRoute = AdminNewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/verify-email'
+    | '/admin/comments'
     | '/admin/news'
     | '/dev/email-outbox'
     | '/news/$slug'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/verify-email'
+    | '/admin/comments'
     | '/admin/news'
     | '/dev/email-outbox'
     | '/news/$slug'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/verify-email'
+    | '/admin/comments'
     | '/admin/news'
     | '/dev/email-outbox'
     | '/news/$slug'
@@ -262,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/comments': {
+      id: '/admin/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminCommentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/news': {
       id: '/admin/news'
       path: '/news'
@@ -294,10 +313,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminCommentsRoute: typeof AdminCommentsRoute
   AdminNewsRoute: typeof AdminNewsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCommentsRoute: AdminCommentsRoute,
   AdminNewsRoute: AdminNewsRoute,
 }
 

@@ -75,6 +75,9 @@ function AdminPage() {
         <a className="button button-primary" href="/admin/news">
           Gerenciar notícias
         </a>
+        <a className="button button-secondary" href="/admin/comments">
+          Moderar comentários
+        </a>
         <h2>Contas do portal</h2>
         <p className="form-help">
           Bloqueios afetam somente o acesso ao portal e encerram as sessões da

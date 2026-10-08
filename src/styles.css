@@ -289,6 +289,76 @@ h2 {
   min-height: 0;
   gap: 12px;
 }
+.news-interactions {
+  display: grid;
+  gap: 18px;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid #29272e;
+}
+.comment-list {
+  display: grid;
+  gap: 12px;
+}
+.comment-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #29272e;
+  border-radius: 8px;
+  background: #151419;
+}
+.comment-card > div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.comment-card span,
+.comment-card time {
+  color: #9996a1;
+  font-size: 12px;
+}
+.comment-card p {
+  margin: 0;
+  color: #d8d4db;
+  white-space: pre-wrap;
+}
+.comment-card label {
+  display: grid;
+  gap: 8px;
+  color: #d8d4db;
+  font-size: 13px;
+  font-weight: 600;
+}
+.comment-card input,
+.comment-form textarea {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #38353f;
+  border-radius: 7px;
+  color: #f5f5f7;
+  background: #151419;
+  font: inherit;
+}
+.comment-form {
+  display: grid;
+  gap: 14px;
+}
+.comment-form label {
+  display: grid;
+  gap: 8px;
+  color: #d8d4db;
+  font-size: 13px;
+  font-weight: 600;
+}
+.comment-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.admin-comment-list {
+  margin-top: 28px;
+}
 .site-footer {
   display: flex;
   justify-content: space-between;

@@ -1,4 +1,11 @@
-import { integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 
 import { user } from './auth-schema';
 export const siteSettings = pgTable('site_settings', {
@@ -42,3 +49,34 @@ export const newsPost = pgTable('news_post', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
+
+export const newsComment = pgTable('news_comment', {
+  id: text('id').primaryKey(),
+  postId: text('post_id')
+    .notNull()
+    .references(() => newsPost.id, { onDelete: 'cascade' }),
+  authorId: text('author_id')
+    .notNull()
+    .references(() => user.id),
+  body: text('body').notNull(),
+  status: text('status').notNull().default('visible'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const newsLike = pgTable(
+  'news_like',
+  {
+    id: text('id').primaryKey(),
+    postId: text('post_id')
+      .notNull()
+      .references(() => newsPost.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('news_like_post_user_idx').on(table.postId, table.userId),
+  ],
+);

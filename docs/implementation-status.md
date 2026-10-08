@@ -166,3 +166,26 @@ Playwright                  -> aguardando PostgreSQL/Docker local
 ```
 
 Migration criada: `0004_long_overlord.sql`. A leitura e publicação precisam ser repetidas com o banco disponível antes de marcar a fase como validada.
+
+## Fase 7 — interações e moderação do blog
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Curtidas idempotentes por conta e notícia, protegidas por índice único.
+- Comentários vinculados à conta e à notícia, com remoção pelo próprio autor.
+- Painel `/admin/comments` para ocultar e restaurar comentários.
+- Auditoria administrativa das decisões de moderação.
+- Teste Playwright preparado para curtir, comentar, ocultar e restaurar uma interação.
+- Migrations `0005_furry_bill_hollister.sql` criada para as tabelas de interação.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
