@@ -37,3 +37,32 @@ Docker/PostgreSQL -> container iniciado e migration aplicada
 ```
 
 Próximo passo: criar a primeira tela administrativa para editar as configurações persistidas, mantendo o modo simulado do OpenMU.
+
+## Fase 2 — cadastro e confirmação de e-mail
+
+Estado: validada localmente.
+
+Entregue:
+
+- Better Auth conectado ao PostgreSQL por Drizzle.
+- Schema oficial de `user`, `session`, `account` e `verification` gerado e migrado.
+- Cadastro de player em `/register`, com validação básica e aceite dos termos.
+- Endpoint catch-all `/api/auth/*` montado no TanStack Start.
+- E-mail de confirmação capturado no outbox local, sem envio externo.
+- Página local `/dev/email-outbox` para abrir o link de confirmação.
+- Confirmação processada pelo Better Auth e verificada no banco.
+
+Evidências verificadas:
+
+```text
+POST /api/auth/sign-up/email       -> 200, usuário criado como não verificado
+outbox local                       -> URL de confirmação capturada
+GET URL capturada                  -> 302 para /verify-email
+PostgreSQL                         -> email_verified = true
+```
+
+Pendências que permanecem para fases seguintes:
+
+- Integração da identidade do jogador com a conta OpenMU e validação de username/PIN.
+- Login, logout, expiração e revogação de sessão da Fase 3.
+- O outbox de e-mail é ferramenta de desenvolvimento local e não envia mensagens reais.
