@@ -757,6 +757,55 @@ h2 {
   outline: 1px solid #82745e;
   outline-offset: 2px;
 }
+.campaign-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.campaign-card {
+  min-height: 220px;
+  padding: 28px;
+  border: 1px solid #302d35;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1d1a22, #121116);
+}
+.campaign-card h2 {
+  margin: 8px 0;
+}
+.campaign-card p:not(.eyebrow) {
+  max-width: 36rem;
+  color: #b4adb9;
+}
+.search-results {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+.search-result {
+  display: grid;
+  gap: 5px;
+  padding: 16px 18px;
+  border: 1px solid #302d35;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  background: #151419;
+}
+.search-result:hover {
+  border-color: #82745e;
+}
+.search-result span {
+  color: #9d96a2;
+  font-size: 14px;
+}
+.server-page .account-card p {
+  color: #a9a2ad;
+}
+@media (max-width: 700px) {
+  .campaign-grid {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 700px) {
   .site-header,
   .site-footer,

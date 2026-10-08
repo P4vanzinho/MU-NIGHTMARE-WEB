@@ -33,6 +33,18 @@ function HomePage() {
           <b>{snapshot.server.onlinePlayers} online</b>
         </section>
       </section>
+      <section className="content-section campaign-grid" aria-label="Destaques">
+        {snapshot.campaigns.map((campaign) => (
+          <article className="campaign-card" key={campaign.id}>
+            <p className="eyebrow">NIGHTMARE</p>
+            <h2>{campaign.title}</h2>
+            <p>{campaign.description}</p>
+            <a className="button button-secondary" href={campaign.ctaHref}>
+              {campaign.ctaLabel}
+            </a>
+          </article>
+        ))}
+      </section>
       <section className="content-section" aria-labelledby="server-heading">
         <div className="section-heading">
           <div>

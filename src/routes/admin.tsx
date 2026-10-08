@@ -81,6 +81,12 @@ function AdminPage() {
         <a className="button button-secondary" href="/admin/reports">
           Analisar reports
         </a>
+        <a className="button button-secondary" href="/admin/campaigns">
+          Editar campanhas da home
+        </a>
+        <a className="button button-secondary" href="/admin/operations">
+          Saúde operacional
+        </a>
         <h2>Contas do portal</h2>
         <p className="form-help">
           Bloqueios afetam somente o acesso ao portal e encerram as sessões da

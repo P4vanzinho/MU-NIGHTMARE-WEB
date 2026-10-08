@@ -370,3 +370,15 @@ test('visitante consulta a agenda simulada de eventos', async ({ page }) => {
   await expect(page.locator('.event-card')).toHaveCount(3);
   await expect(page.getByText('Blood Castle')).toBeVisible();
 });
+
+test('visitante consulta busca pública e status da integração simulada', async ({
+  page,
+}) => {
+  await page.goto('/search?q=Blood');
+  await expect(
+    page.getByRole('heading', { name: 'Buscar no portal' }),
+  ).toBeVisible();
+  await page.goto('/server');
+  await expect(page.getByRole('heading', { name: 'Servidor' })).toBeVisible();
+  await expect(page.getByText('Simulado')).toBeVisible();
+});

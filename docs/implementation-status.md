@@ -308,3 +308,65 @@ Playwright                  -> aguardando PostgreSQL/Docker local
 ```
 
 A integração desses dados com o OpenMU real continua pendente da Fase 16.
+
+## Fase 13 — campanhas gerenciáveis da home
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Campanhas persistidas com título, descrição, CTA, rota interna, posição e status ativo.
+- Seed idempotente de campanhas padrão na home.
+- Editor administrativo em `/admin/campaigns`.
+- Cards de campanha renderizados na home sem acoplar conteúdo à estrutura visual.
+- Migration `0010_busy_vulture.sql` criada.
+
+Não foram adicionados links de compra, moeda ou marketplace; esses fluxos seguem fora do escopo até a integração do jogo.
+
+## Fase 14 — busca pública
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Busca em `/search` por notícias publicadas e perfis públicos simulados.
+- Resultados levam diretamente ao conteúdo público correspondente.
+- Consultas não incluem contas privadas, reports ou dados de autenticação.
+- Link de busca incluído na navegação global.
+
+## Fase 15 — contrato explícito de integração OpenMU
+
+Estado: contrato preparado; integração real bloqueada pela ausência de uma instalação OpenMU acessível.
+
+Entregue:
+
+- Interface pública `OpenMuPublicGateway` e modelo de saúde/capacidades.
+- Seleção explícita por `OPENMU_MODE=simulated|real`.
+- Adaptador simulado retorna capacidades locais conhecidas.
+- Adaptador real falha de forma explícita com `OpenMuUnavailableError`; não há fallback silencioso.
+- Página `/server` exibe modo, conexão e capacidades.
+
+Pendente: implementar o adaptador real quando endpoints, credenciais e ambiente OpenMU forem fornecidos.
+
+## Fase 16 — fronteira de dados privados do jogador
+
+Estado: preparado apenas no modo simulado.
+
+Personagens, cofre, carteira, ranking e eventos continuam sendo lidos de adaptadores locais. Nenhuma mutação de moeda, item ou personagem foi liberada. A troca pelo OpenMU real exige contrato de identidade, autorização por conta e testes de ownership antes de qualquer escrita.
+
+## Fase 17 — operação e observabilidade local
+
+Estado: base operacional implementada; validação de infraestrutura pendente.
+
+Entregue:
+
+- Registro persistente de operações em `operation_log`.
+- Painel administrativo `/admin/operations` com saúde do OpenMU e últimas operações.
+- Links do painel administrativo para campanhas e saúde operacional.
+- Migration `0010_busy_vulture.sql` inclui a tabela operacional.
+
+Pendente e documentado para a próxima etapa:
+
+- Subir PostgreSQL via Docker e aplicar migrations em ambiente local.
+- Exercitar restauração, reinício e carga concorrente com Playwright e banco disponível.
+- Conectar o adaptador real e registrar erros/latências das chamadas OpenMU.

@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   jsonb,
   pgTable,
@@ -150,4 +151,24 @@ export const simulatedPlayerWallet = pgTable('simulated_player_wallet', {
   nightmareCoins: integer('nightmare_coins').notNull().default(0),
   vipLevel: integer('vip_level').notNull().default(0),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const campaign = pgTable('campaign', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  ctaLabel: text('cta_label').notNull(),
+  ctaHref: text('cta_href').notNull(),
+  active: boolean('active').notNull().default(true),
+  position: integer('position').notNull().default(0),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const operationLog = pgTable('operation_log', {
+  id: text('id').primaryKey(),
+  operation: text('operation').notNull(),
+  status: text('status').notNull(),
+  detail: text('detail').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
