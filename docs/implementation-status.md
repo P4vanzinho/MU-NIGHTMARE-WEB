@@ -238,3 +238,28 @@ Playwright                  -> aguardando PostgreSQL/Docker local
 ```
 
 A entrega efetiva de Nightmare Coins ou qualquer benefício continua deliberadamente fora desta fase.
+
+## Fase 10 — ranking e perfil público autorizado
+
+Estado: implementada; QA de integração aguardando PostgreSQL local.
+
+Entregue:
+
+- Ranking simulado persistido com seed determinístico e ordenação estável por pontuação, nível e nome.
+- Busca global por jogador ou classe sem limitar a consulta aos primeiros registros.
+- Destaques visuais para as cinco primeiras posições sem alterar a posição global.
+- Perfil público mínimo em `/ranking/:slug`.
+- Visibilidade pública explícita no modelo; campos privados não são expostos.
+- Migration `0008_yellow_lila_cheney.sql` criada para o ranking simulado.
+
+Validação local:
+
+```text
+npm run typecheck           -> passou
+npm run check               -> passou
+npm run test                -> passou
+npm run build               -> build client e SSR, passou
+Playwright                  -> aguardando PostgreSQL/Docker local
+```
+
+A edição de visibilidade e a substituição pelo ranking real do OpenMU permanecem pendentes das fases de integração.

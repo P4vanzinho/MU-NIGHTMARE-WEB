@@ -16,6 +16,7 @@ import { Route as BugreportRouteImport } from './routes/bugreport'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
@@ -24,6 +25,7 @@ import { Route as AdminNewsRouteImport } from './routes/admin/news'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as DevEmailOutboxRouteImport } from './routes/dev/email-outbox'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
+import { Route as RankingSlugRouteImport } from './routes/ranking/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +61,11 @@ const LoginRoute = LoginRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingRoute = RankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -101,6 +108,11 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => NewsRoute,
 } as any)
+const RankingSlugRoute = RankingSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => RankingRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -115,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
+  '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -123,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/ranking/$slug': typeof RankingSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +147,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
+  '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -141,6 +156,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/ranking/$slug': typeof RankingSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -152,6 +168,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/news': typeof NewsRouteWithChildren
+  '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -160,6 +177,7 @@ export interface FileRoutesById {
   '/admin/reports': typeof AdminReportsRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/ranking/$slug': typeof RankingSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -172,6 +190,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/news'
+    | '/ranking'
     | '/register'
     | '/reset-password'
     | '/verify-email'
@@ -180,6 +199,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
+    | '/ranking/$slug'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -190,6 +210,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/news'
+    | '/ranking'
     | '/register'
     | '/reset-password'
     | '/verify-email'
@@ -198,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
+    | '/ranking/$slug'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -208,6 +230,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/news'
+    | '/ranking'
     | '/register'
     | '/reset-password'
     | '/verify-email'
@@ -216,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/dev/email-outbox'
     | '/news/$slug'
+    | '/ranking/$slug'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -227,6 +251,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewsRoute: typeof NewsRouteWithChildren
+  RankingRoute: typeof RankingRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
@@ -285,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ranking': {
+      id: '/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof RankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -341,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof NewsRoute
     }
+    '/ranking/$slug': {
+      id: '/ranking/$slug'
+      path: '/$slug'
+      fullPath: '/ranking/$slug'
+      preLoaderRoute: typeof RankingSlugRouteImport
+      parentRoute: typeof RankingRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -375,6 +414,17 @@ const NewsRouteChildren: NewsRouteChildren = {
 
 const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
 
+interface RankingRouteChildren {
+  RankingSlugRoute: typeof RankingSlugRoute
+}
+
+const RankingRouteChildren: RankingRouteChildren = {
+  RankingSlugRoute: RankingSlugRoute,
+}
+
+const RankingRouteWithChildren =
+  RankingRoute._addFileChildren(RankingRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
@@ -383,6 +433,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewsRoute: NewsRouteWithChildren,
+  RankingRoute: RankingRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   VerifyEmailRoute: VerifyEmailRoute,

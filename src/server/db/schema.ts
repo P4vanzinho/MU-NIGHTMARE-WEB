@@ -100,3 +100,14 @@ export const bugReport = pgTable('bug_report', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
+
+export const simulatedPlayer = pgTable('simulated_player', {
+  id: text('id').primaryKey(),
+  publicSlug: text('public_slug').notNull().unique(),
+  name: text('name').notNull(),
+  characterClass: text('character_class').notNull(),
+  level: integer('level').notNull(),
+  score: integer('score').notNull(),
+  visibility: text('visibility').notNull().default('public'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});

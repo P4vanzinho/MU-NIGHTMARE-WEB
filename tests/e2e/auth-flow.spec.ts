@@ -341,3 +341,19 @@ test('player envia report e acompanha somente o próprio protocolo', async ({
   await expect(page.getByText(title)).toBeVisible();
   await expect(page.getByText(/NM-\d{8}-[A-Z0-9]{8}/)).toBeVisible();
 });
+
+test('visitante consulta ranking, busca e abre perfil público', async ({
+  page,
+}) => {
+  await page.goto('/ranking');
+  await expect(
+    page.getByRole('heading', { name: 'Os melhores do Nightmare' }),
+  ).toBeVisible();
+  await expect(page.locator('.ranking-row')).toHaveCount(8);
+  await expect(page.locator('.ranking-rank-1')).toContainText('Raven');
+  await page.getByLabel('Buscar jogador ou classe').fill('Muse Elf');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+  await expect(page.locator('.ranking-row')).toHaveCount(2);
+  await page.locator('.ranking-row').first().getByRole('link').click();
+  await expect(page.getByRole('heading', { name: /Vex|Luna/ })).toBeVisible();
+});
