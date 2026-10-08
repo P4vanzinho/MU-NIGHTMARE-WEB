@@ -105,6 +105,11 @@ h1 {
   color: #17130d;
   background: #e4b45f;
 }
+.button-secondary {
+  color: #f5f5f7;
+  border: 1px solid #38353f;
+  background: #151419;
+}
 .server-card {
   display: flex;
   align-items: center;
@@ -287,6 +292,22 @@ h2 {
 .outbox-card a {
   color: #e4b45f;
   font-weight: 700;
+}
+.account-card {
+  display: grid;
+  gap: 8px;
+  margin: 28px 0;
+  padding: 20px;
+  border: 1px solid #29272e;
+  border-radius: 8px;
+  background: #151419;
+}
+.account-card span {
+  color: #9996a1;
+  font-size: 12px;
+}
+.account-card strong {
+  margin-bottom: 9px;
 }
 @media (max-width: 700px) {
   .site-header,

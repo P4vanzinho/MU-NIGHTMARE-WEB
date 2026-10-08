@@ -66,3 +66,28 @@ Pendências que permanecem para fases seguintes:
 - Integração da identidade do jogador com a conta OpenMU e validação de username/PIN.
 - Login, logout, expiração e revogação de sessão da Fase 3.
 - O outbox de e-mail é ferramenta de desenvolvimento local e não envia mensagens reais.
+
+## Fase 3 — sessão player e acesso admin
+
+Estado: validada localmente.
+
+Entregue:
+
+- Login e logout com sessão HttpOnly do Better Auth.
+- Rota `/account` protegida por sessão no servidor.
+- Rota `/admin` protegida por role `admin` no servidor.
+- Role padrão `player` e plugin administrativo do Better Auth.
+- Script `npm run admin:create` para criar múltiplos admins com credenciais fornecidas por ambiente.
+- Schema e migration para role, bloqueio e impersonação de sessão.
+- QA Playwright cobrindo bloqueio de rotas privadas, cadastro, confirmação, login e logout.
+
+Evidências verificadas:
+
+```text
+npm run admin:create             -> admin criado e verificado no PostgreSQL
+Playwright player flow           -> passou
+Playwright admin flow            -> disponível com E2E_ADMIN_EMAIL/PASSWORD
+player -> /admin                 -> redireciona para /login
+```
+
+O script de admin não possui credenciais padrão; o ambiente deve sempre fornecer `ADMIN_EMAIL` e `ADMIN_PASSWORD`.

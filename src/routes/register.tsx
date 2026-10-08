@@ -29,6 +29,7 @@ function RegisterPage() {
       name: form.name,
       email: form.email,
       password: form.password,
+      callbackURL: 'http://localhost:3000/verify-email',
     });
     setIsSubmitting(false);
     if (result.error) {
