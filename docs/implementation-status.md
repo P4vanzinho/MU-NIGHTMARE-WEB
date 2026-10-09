@@ -503,3 +503,8 @@ estorno e integração de inventário/saldo real do OpenMU.
   terá estados locais de não conectado, pendente, conectado ou falho.
 - A integração usará OAuth e manterá credenciais somente no backend; senha e
   token de recebimento não serão enviados ao frontend.
+- Contestação será válida para não entrega, item ou quantidade divergente,
+  falha/reversão da entrega OpenMU ou pagamento não autorizado. Mudança de
+  ideia e variação posterior de preço não serão motivos automáticos.
+- Durante uma contestação, o saldo do vendedor permanece congelado e o caso
+  exige análise administrativa com evidências do pagamento e do OpenMU.
