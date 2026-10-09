@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 import { getPublishedNews } from '#/server/news/news';
 import { PageShell } from '#/shared/layout/page-shell';
@@ -37,6 +37,7 @@ function NewsPage() {
           )}
         </div>
       </section>
+      <Outlet />
     </PageShell>
   );
 }

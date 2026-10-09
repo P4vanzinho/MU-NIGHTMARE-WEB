@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { useState } from 'react';
 import {
   getAdminAccounts,
@@ -158,6 +158,7 @@ function AdminPage() {
           </p>
         )}
       </section>
+      <Outlet />
     </PageShell>
   );
 }

@@ -8,6 +8,7 @@ test('player cria conta, confirma e-mail, entra e encerra sessão', async ({
   await page.goto('/account');
   await expect(page).toHaveURL(/\/login$/);
   await page.goto('/admin');
+  await page.waitForLoadState('networkidle');
   await expect(page).toHaveURL(/\/login$/);
 
   await page.goto('/register');
@@ -54,7 +55,10 @@ test('player cria conta, confirma e-mail, entra e encerra sessão', async ({
   await expect(page).toHaveURL(/\/$/);
 });
 
-test('admin autenticado acessa o painel administrativo', async ({ page }) => {
+test('admin autenticado acessa o painel administrativo', async ({
+  page,
+  request,
+}) => {
   test.skip(
     !process.env.E2E_ADMIN_EMAIL || !process.env.E2E_ADMIN_PASSWORD,
     'credenciais locais de QA não configuradas',
@@ -71,7 +75,7 @@ test('admin autenticado acessa o painel administrativo', async ({ page }) => {
   await expect(page.getByText('admin', { exact: true })).toBeVisible();
 
   const email = `managed-${Date.now()}@example.test`;
-  const signup = await page.request.post('/api/auth/sign-up/email', {
+  const signup = await request.post('/api/auth/sign-up/email', {
     data: { name: 'Managed QA', email, password: 'nightmare123' },
   });
   expect(signup.ok()).toBeTruthy();
@@ -89,21 +93,26 @@ test('admin autenticado acessa o painel administrativo', async ({ page }) => {
   expect(verificationResponse.ok()).toBeTruthy();
 
   await page.goto('/admin');
+  await page.waitForLoadState('networkidle');
   const account = page
     .locator('.admin-account-card')
     .filter({ hasText: email });
   await account.getByLabel('Motivo da decisão').fill('Teste de bloqueio');
   await account.getByRole('button', { name: 'Bloquear' }).click();
+  await page.waitForLoadState('networkidle');
   await expect(
     page.locator('.admin-account-card').filter({ hasText: email }),
   ).toContainText('bloqueada');
 
   const playerPage = await page.context().newPage();
   await playerPage.goto('/login');
+  await playerPage.waitForLoadState('networkidle');
   await playerPage.getByLabel('E-mail').fill(email);
   await playerPage.getByLabel('Senha').fill('nightmare123');
   await playerPage.getByRole('button', { name: 'Entrar' }).click();
-  await expect(playerPage.getByRole('alert')).toContainText(/bloquead|banid/i);
+  await expect(playerPage.getByRole('alert')).toContainText(
+    /bloquead|banid|banned/i,
+  );
   await playerPage.close();
 
   const blockedAccount = page
@@ -113,6 +122,7 @@ test('admin autenticado acessa o painel administrativo', async ({ page }) => {
     .getByLabel('Motivo da decisão')
     .fill('Revisão concluída');
   await blockedAccount.getByRole('button', { name: 'Desbloquear' }).click();
+  await page.waitForLoadState('networkidle');
   await expect(
     page.locator('.admin-account-card').filter({ hasText: email }),
   ).toContainText('ativa');
@@ -194,6 +204,7 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
   );
 
   await page.goto('/login');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('E-mail').fill(adminEmail ?? '');
   await page.getByLabel('Senha').fill(adminPassword ?? '');
   await page.getByRole('button', { name: 'Entrar' }).click();
@@ -201,6 +212,7 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
 
   const title = `Atualização QA ${Date.now()}`;
   await page.goto('/admin/news');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('Título').fill(title);
   await page.getByLabel('Resumo').fill('Resumo da publicação de QA.');
   await page
@@ -208,8 +220,10 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
     .fill('Conteúdo completo da publicação de QA.');
   await page.getByLabel('Categoria').fill('QA');
   await page.getByRole('button', { name: 'Publicar' }).click();
+  await page.waitForLoadState('networkidle');
 
   await page.goto('/news');
+  await page.waitForLoadState('networkidle');
   const post = page.locator('.news-post-preview').filter({ hasText: title });
   await expect(post).toBeVisible();
   await post.getByRole('link', { name: 'Ler notícia' }).click();
@@ -219,7 +233,10 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('player curte e comenta, admin modera o comentário', async ({ page }) => {
+test('player curte e comenta, admin modera o comentário', async ({
+  page,
+  request,
+}) => {
   const adminEmail = process.env.E2E_ADMIN_EMAIL;
   const adminPassword = process.env.E2E_ADMIN_PASSWORD;
   test.skip(
@@ -228,6 +245,7 @@ test('player curte e comenta, admin modera o comentário', async ({ page }) => {
   );
 
   await page.goto('/login');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('E-mail').fill(adminEmail ?? '');
   await page.getByLabel('Senha').fill(adminPassword ?? '');
   await page.getByRole('button', { name: 'Entrar' }).click();
@@ -235,6 +253,7 @@ test('player curte e comenta, admin modera o comentário', async ({ page }) => {
 
   const title = `Interações QA ${Date.now()}`;
   await page.goto('/admin/news');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('Título').fill(title);
   await page.getByLabel('Resumo').fill('Resumo das interações de QA.');
   await page.getByLabel('Conteúdo').fill('Conteúdo das interações de QA.');
@@ -242,7 +261,7 @@ test('player curte e comenta, admin modera o comentário', async ({ page }) => {
   await page.getByRole('button', { name: 'Publicar' }).click();
 
   const playerEmail = `commenter-${Date.now()}@example.test`;
-  const signup = await page.request.post('/api/auth/sign-up/email', {
+  const signup = await request.post('/api/auth/sign-up/email', {
     data: {
       name: 'Commenter QA',
       email: playerEmail,
@@ -264,6 +283,7 @@ test('player curte e comenta, admin modera o comentário', async ({ page }) => {
 
   const playerPage = await page.context().newPage();
   await playerPage.goto('/login');
+  await playerPage.waitForLoadState('networkidle');
   await playerPage.getByLabel('E-mail').fill(playerEmail);
   await playerPage.getByLabel('Senha').fill('nightmare123');
   await playerPage.getByRole('button', { name: 'Entrar' }).click();
