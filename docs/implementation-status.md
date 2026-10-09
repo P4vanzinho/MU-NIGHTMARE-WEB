@@ -516,3 +516,8 @@ estorno e integração de inventário/saldo real do OpenMU.
 - Chargebacks posteriores continuam podendo ser analisados após o saque. O
   vendedor terá uma reserva de segurança para cobrir esses casos; percentual e
   duração da reserva serão definidos após conhecermos o provedor real.
+- Qualquer jogador pode explorar o marketplace. Para vender em NC, exige-se
+  conta verificada; para vender em reais, exige-se e-mail confirmado, conta sem
+  punições e vínculo aprovado com o provedor. O primeiro saque pode passar por
+  revisão administrativa, e KYC adicional será exigido somente se o provedor
+  real determinar.
