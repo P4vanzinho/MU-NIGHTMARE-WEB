@@ -481,5 +481,8 @@ estorno e integração de inventário/saldo real do OpenMU.
   comprador.
 - Pagamento confirmado liquida a venda; falha, cancelamento ou expiração
   liberam o item novamente.
+- Uma confirmação recebida depois da expiração não entrega o item
+  automaticamente. Ela gera um estado de confirmação tardia para estorno ou
+  decisão administrativa.
 - Essa regra será simulada localmente antes de qualquer integração com Mercado
   Pago ou OpenMU.
