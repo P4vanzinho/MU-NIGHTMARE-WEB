@@ -498,3 +498,8 @@ estorno e integração de inventário/saldo real do OpenMU.
   usará estados de disponível, saque solicitado, pago ou falho.
 - No simulador local não haverá valor mínimo de saque. Em produção, o limite
   será definido depois de conhecer as tarifas e exigências reais do provedor.
+- Anúncios em moedas do jogo não exigem conta de pagamento. Anúncios em reais
+  exigirão vínculo e validação do Mercado Pago antes da publicação; o vínculo
+  terá estados locais de não conectado, pendente, conectado ou falho.
+- A integração usará OAuth e manterá credenciais somente no backend; senha e
+  token de recebimento não serão enviados ao frontend.
