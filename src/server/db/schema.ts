@@ -187,3 +187,42 @@ export const simulatedItemTransfer = pgTable('simulated_item_transfer', {
   status: text('status').notNull().default('completed'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
+
+export const shopProduct = pgTable('shop_product', {
+  id: text('id').primaryKey(),
+  slug: text('slug').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  currency: text('currency').notNull(),
+  priceCents: integer('price_cents').notNull(),
+  benefit: text('benefit').notNull(),
+  eligibility: text('eligibility').notNull(),
+  active: boolean('active').notNull().default(true),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const simulatedOrder = pgTable('simulated_order', {
+  id: text('id').primaryKey(),
+  protocol: text('protocol').notNull().unique(),
+  buyerId: text('buyer_id')
+    .notNull()
+    .references(() => user.id),
+  productId: text('product_id')
+    .notNull()
+    .references(() => shopProduct.id),
+  currency: text('currency').notNull(),
+  priceCents: integer('price_cents').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const simulatedPaymentEvent = pgTable('simulated_payment_event', {
+  id: text('id').primaryKey(),
+  eventId: text('event_id').notNull().unique(),
+  orderId: text('order_id')
+    .notNull()
+    .references(() => simulatedOrder.id, { onDelete: 'cascade' }),
+  status: text('status').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+});

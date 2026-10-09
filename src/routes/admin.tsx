@@ -87,6 +87,9 @@ function AdminPage() {
         <a className="button button-secondary" href="/admin/operations">
           Saúde operacional
         </a>
+        <a className="button button-secondary" href="/admin/shop">
+          Gerenciar catálogo
+        </a>
         <h2>Contas do portal</h2>
         <p className="form-help">
           Bloqueios afetam somente o acesso ao portal e encerram as sessões da

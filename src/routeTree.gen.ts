@@ -22,6 +22,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ServerRouteImport } from './routes/server'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AccountTransfersRouteImport } from './routes/account/transfers'
 import { Route as AdminCampaignsRouteImport } from './routes/admin/campaigns'
@@ -29,6 +30,7 @@ import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
 import { Route as AdminOperationsRouteImport } from './routes/admin/operations'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
+import { Route as AdminShopRouteImport } from './routes/admin/shop'
 import { Route as DevEmailOutboxRouteImport } from './routes/dev/email-outbox'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as RankingSlugRouteImport } from './routes/ranking/$slug'
@@ -99,6 +101,11 @@ const ServerRoute = ServerRouteImport.update({
   path: '/server',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
@@ -132,6 +139,11 @@ const AdminOperationsRoute = AdminOperationsRouteImport.update({
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminShopRoute = AdminShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => AdminRoute,
 } as any)
 const DevEmailOutboxRoute = DevEmailOutboxRouteImport.update({
@@ -169,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
+  '/shop': typeof ShopRoute
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -176,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/shop': typeof AdminShopRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/ranking/$slug': typeof RankingSlugRoute
@@ -195,6 +209,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
+  '/shop': typeof ShopRoute
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -202,6 +217,7 @@ export interface FileRoutesByTo {
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/shop': typeof AdminShopRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/ranking/$slug': typeof RankingSlugRoute
@@ -222,6 +238,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
+  '/shop': typeof ShopRoute
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -229,6 +246,7 @@ export interface FileRoutesById {
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/shop': typeof AdminShopRoute
   '/dev/email-outbox': typeof DevEmailOutboxRoute
   '/news/$slug': typeof NewsSlugRoute
   '/ranking/$slug': typeof RankingSlugRoute
@@ -250,6 +268,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/server'
+    | '/shop'
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
@@ -257,6 +276,7 @@ export interface FileRouteTypes {
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
+    | '/admin/shop'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/ranking/$slug'
@@ -276,6 +296,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/server'
+    | '/shop'
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
@@ -283,6 +304,7 @@ export interface FileRouteTypes {
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
+    | '/admin/shop'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/ranking/$slug'
@@ -302,6 +324,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/search'
     | '/server'
+    | '/shop'
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
@@ -309,6 +332,7 @@ export interface FileRouteTypes {
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
+    | '/admin/shop'
     | '/dev/email-outbox'
     | '/news/$slug'
     | '/ranking/$slug'
@@ -329,6 +353,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   ServerRoute: typeof ServerRoute
+  ShopRoute: typeof ShopRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   DevEmailOutboxRoute: typeof DevEmailOutboxRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -427,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify-email': {
       id: '/verify-email'
       path: '/verify-email'
@@ -474,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/admin/reports'
       preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/shop': {
+      id: '/admin/shop'
+      path: '/shop'
+      fullPath: '/admin/shop'
+      preLoaderRoute: typeof AdminShopRouteImport
       parentRoute: typeof AdminRoute
     }
     '/dev/email-outbox': {
@@ -524,6 +563,7 @@ interface AdminRouteChildren {
   AdminNewsRoute: typeof AdminNewsRoute
   AdminOperationsRoute: typeof AdminOperationsRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminShopRoute: typeof AdminShopRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -532,6 +572,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminNewsRoute: AdminNewsRoute,
   AdminOperationsRoute: AdminOperationsRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminShopRoute: AdminShopRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -571,6 +612,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   ServerRoute: ServerRoute,
+  ShopRoute: ShopRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   DevEmailOutboxRoute: DevEmailOutboxRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

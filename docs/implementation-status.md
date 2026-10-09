@@ -385,3 +385,29 @@ Entregue:
 - Nenhuma escrita é enviada ao OpenMU.
 
 Pendente para a evolução do simulador: idempotência explícita por chave de requisição, tela administrativa de recuperação e ensaios concorrentes automatizados. A integração real só pode ser habilitada quando o contrato de inventário e reserva do OpenMU estiver disponível.
+
+## Fase 19 — catálogo e condições comerciais
+
+Estado: implementada em modo local; sem cobrança real.
+
+Entregue:
+
+- Catálogo persistido com preço, moeda, benefício, elegibilidade e status ativo.
+- Seed de produtos locais somente para demonstração do fluxo.
+- Administração em `/admin/shop` para criar e editar ofertas.
+- Loja autenticada em `/shop` com aviso explícito de simulação.
+- Migration `0012_lying_red_shift.sql` criada e aplicada.
+
+## Fase 20 — pedido e pagamento exclusivamente simulados
+
+Estado: implementada em modo local; nenhum pagamento real é aceito.
+
+Entregue:
+
+- Criação de pedido persistido com protocolo, preço e moeda congelados no momento da compra.
+- Evento de pagamento simulado separado da criação do pedido.
+- Eventos duplicados ignorados por `eventId` único.
+- Estados terminais impedem transições posteriores fora de ordem.
+- Histórico de pedidos do player exibido na própria loja.
+
+Pendente: definir política final de expiração/cancelamento e conectar um provedor de pagamento somente em uma fase posterior aprovada. Nenhum pedido entrega benefício ou movimenta saldo nesta fase.
