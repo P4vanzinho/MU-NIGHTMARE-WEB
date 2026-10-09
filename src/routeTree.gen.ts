@@ -16,6 +16,7 @@ import { Route as BugreportRouteImport } from './routes/bugreport'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -27,6 +28,7 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AccountTransfersRouteImport } from './routes/account/transfers'
 import { Route as AdminCampaignsRouteImport } from './routes/admin/campaigns'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
+import { Route as AdminGrantsRouteImport } from './routes/admin/grants'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
 import { Route as AdminOperationsRouteImport } from './routes/admin/operations'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
@@ -69,6 +71,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -126,6 +133,11 @@ const AdminCommentsRoute = AdminCommentsRouteImport.update({
   path: '/comments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminGrantsRoute = AdminGrantsRouteImport.update({
+  id: '/grants',
+  path: '/grants',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNewsRoute = AdminNewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -175,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/news': typeof NewsRouteWithChildren
   '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
@@ -186,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -203,6 +217,7 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/news': typeof NewsRouteWithChildren
   '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
@@ -214,6 +229,7 @@ export interface FileRoutesByTo {
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -232,6 +248,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/news': typeof NewsRouteWithChildren
   '/ranking': typeof RankingRouteWithChildren
   '/register': typeof RegisterRoute
@@ -243,6 +260,7 @@ export interface FileRoutesById {
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/operations': typeof AdminOperationsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -262,6 +280,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/forgot-password'
     | '/login'
+    | '/marketplace'
     | '/news'
     | '/ranking'
     | '/register'
@@ -273,6 +292,7 @@ export interface FileRouteTypes {
     | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
+    | '/admin/grants'
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
@@ -290,6 +310,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/forgot-password'
     | '/login'
+    | '/marketplace'
     | '/news'
     | '/ranking'
     | '/register'
@@ -301,6 +322,7 @@ export interface FileRouteTypes {
     | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
+    | '/admin/grants'
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
@@ -318,6 +340,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/forgot-password'
     | '/login'
+    | '/marketplace'
     | '/news'
     | '/ranking'
     | '/register'
@@ -329,6 +352,7 @@ export interface FileRouteTypes {
     | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
+    | '/admin/grants'
     | '/admin/news'
     | '/admin/operations'
     | '/admin/reports'
@@ -347,6 +371,7 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   NewsRoute: typeof NewsRouteWithChildren
   RankingRoute: typeof RankingRouteWithChildren
   RegisterRoute: typeof RegisterRoute
@@ -408,6 +433,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -487,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/grants': {
+      id: '/admin/grants'
+      path: '/grants'
+      fullPath: '/admin/grants'
+      preLoaderRoute: typeof AdminGrantsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/news': {
       id: '/admin/news'
       path: '/news'
@@ -560,6 +599,7 @@ const AccountRouteWithChildren =
 interface AdminRouteChildren {
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
+  AdminGrantsRoute: typeof AdminGrantsRoute
   AdminNewsRoute: typeof AdminNewsRoute
   AdminOperationsRoute: typeof AdminOperationsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -569,6 +609,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCommentsRoute: AdminCommentsRoute,
+  AdminGrantsRoute: AdminGrantsRoute,
   AdminNewsRoute: AdminNewsRoute,
   AdminOperationsRoute: AdminOperationsRoute,
   AdminReportsRoute: AdminReportsRoute,
@@ -606,6 +647,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  MarketplaceRoute: MarketplaceRoute,
   NewsRoute: NewsRouteWithChildren,
   RankingRoute: RankingRouteWithChildren,
   RegisterRoute: RegisterRoute,

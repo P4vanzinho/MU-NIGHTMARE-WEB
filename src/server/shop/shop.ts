@@ -136,6 +136,57 @@ export const getMyOrders = createServerFn({ method: 'GET' }).handler(
   },
 );
 
+export const getAdminBenefitGrants = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    await getRequiredAdminSession();
+    return db
+      .select()
+      .from(simulatedBenefitGrant)
+      .orderBy(desc(simulatedBenefitGrant.createdAt));
+  },
+);
+
+export const retryBenefitGrant = createServerFn({ method: 'POST' })
+  .validator(z.object({ grantId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    await getRequiredAdminSession();
+    return db.transaction(async (tx) => {
+      const [grant] = await tx
+        .select()
+        .from(simulatedBenefitGrant)
+        .where(eq(simulatedBenefitGrant.id, data.grantId))
+        .limit(1);
+      if (!grant) throw new Error('Concessão não encontrada.');
+      if (grant.status === 'granted') return grant;
+      const coins = Number(grant.benefit.match(/\d+/)?.[0] ?? 0);
+      const vip = grant.benefit.includes('VIP')
+        ? Number(grant.benefit.match(/nível\s+(\d+)/i)?.[1] ?? 1)
+        : 0;
+      await tx
+        .insert(simulatedPlayerWallet)
+        .values({
+          ownerId: grant.ownerId,
+          nightmareCoins: coins,
+          vipLevel: vip,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: simulatedPlayerWallet.ownerId,
+          set: {
+            nightmareCoins: sql`${simulatedPlayerWallet.nightmareCoins} + ${coins}`,
+            vipLevel: sql`GREATEST(${simulatedPlayerWallet.vipLevel}, ${vip})`,
+            updatedAt: new Date(),
+          },
+        });
+      const [updated] = await tx
+        .update(simulatedBenefitGrant)
+        .set({ status: 'granted' })
+        .where(eq(simulatedBenefitGrant.id, grant.id))
+        .returning();
+      return updated;
+    });
+  });
+
 export const createSimulatedOrder = createServerFn({ method: 'POST' })
   .validator(z.object({ productId: z.string().min(1) }))
   .handler(async ({ data }) => {
@@ -232,19 +283,27 @@ export const simulatePaymentEvent = createServerFn({ method: 'POST' })
           .returning({ id: simulatedBenefitGrant.id });
 
         const coins = Number(product.benefit.match(/\d+/)?.[0] ?? 0);
-        if (grant && coins > 0 && product.benefit.includes('Nightmare Coins')) {
+        const vip = product.benefit.includes('VIP')
+          ? Number(product.benefit.match(/nível\s+(\d+)/i)?.[1] ?? 1)
+          : 0;
+        if (grant && (coins > 0 || vip > 0)) {
           await tx
             .insert(simulatedPlayerWallet)
             .values({
               ownerId: order.buyerId,
-              nightmareCoins: coins,
-              vipLevel: 0,
+              nightmareCoins: product.benefit.includes('Nightmare Coins')
+                ? coins
+                : 0,
+              vipLevel: vip,
               updatedAt: new Date(),
             })
             .onConflictDoUpdate({
               target: simulatedPlayerWallet.ownerId,
               set: {
-                nightmareCoins: sql`${simulatedPlayerWallet.nightmareCoins} + ${coins}`,
+                nightmareCoins: product.benefit.includes('Nightmare Coins')
+                  ? sql`${simulatedPlayerWallet.nightmareCoins} + ${coins}`
+                  : simulatedPlayerWallet.nightmareCoins,
+                vipLevel: sql`GREATEST(${simulatedPlayerWallet.vipLevel}, ${vip})`,
                 updatedAt: new Date(),
               },
             });

@@ -90,6 +90,9 @@ function AdminPage() {
         <a className="button button-secondary" href="/admin/shop">
           Gerenciar catálogo
         </a>
+        <a className="button button-secondary" href="/admin/grants">
+          Recuperar benefícios
+        </a>
         <h2>Contas do portal</h2>
         <p className="form-help">
           Bloqueios afetam somente o acesso ao portal e encerram as sessões da

@@ -73,6 +73,9 @@ test('admin autenticado acessa o painel administrativo', async ({
   await page.goto('/admin');
   await expect(page.getByRole('heading', { name: 'Painel' })).toBeVisible();
   await expect(page.getByText('admin', { exact: true })).toBeVisible();
+  await page.goto('/admin/grants');
+  await expect(page.getByRole('heading', { name: 'Concessões' })).toBeVisible();
+  await page.goto('/admin');
 
   const email = `managed-${Date.now()}@example.test`;
   const signup = await request.post('/api/auth/sign-up/email', {
@@ -236,6 +239,116 @@ test('player solicita recuperação e define uma nova senha', async ({
   await page.getByLabel('Senha').fill('nightmare456');
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page).toHaveURL(/\/account$/);
+});
+
+test('players anunciam, compram e negociam item no marketplace simulado', async ({
+  page,
+  request,
+  browser,
+}) => {
+  async function createVerifiedPlayer(name: string) {
+    const email = `${name.toLowerCase().replaceAll(' ', '-')}-${Date.now()}@example.test`;
+    const signup = await request.post('/api/auth/sign-up/email', {
+      data: { name, email, password: 'nightmare123' },
+    });
+    expect(signup.ok()).toBeTruthy();
+    await page.goto('/dev/email-outbox');
+    const emailCard = page
+      .locator('.outbox-card')
+      .filter({ hasText: email })
+      .last();
+    const href = await emailCard
+      .getByRole('link', { name: 'Confirmar endereço' })
+      .getAttribute('href');
+    expect(href).toBeTruthy();
+    const verification = await request.get(href ?? '');
+    expect(verification.ok()).toBeTruthy();
+    return email;
+  }
+
+  const sellerEmail = await createVerifiedPlayer('Seller QA');
+  await page.goto('/login');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('E-mail').fill(sellerEmail);
+  await page.getByLabel('Senha').fill('nightmare123');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+  await page.goto('/marketplace');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('Item do cofre').selectOption({ index: 1 });
+  await page.getByLabel('Preço em NC').fill('100');
+  await page.getByRole('button', { name: 'Publicar anúncio' }).click();
+  await expect(page.getByRole('status')).toContainText('Anúncio criado');
+
+  const buyerContext = await browser.newContext();
+  const buyerPage = await buyerContext.newPage();
+  const buyerEmail = `buyer-${Date.now()}@example.test`;
+  const buyerSignup = await request.post('/api/auth/sign-up/email', {
+    data: { name: 'Buyer QA', email: buyerEmail, password: 'nightmare123' },
+  });
+  expect(buyerSignup.ok()).toBeTruthy();
+  await page.goto('/dev/email-outbox');
+  const buyerCard = page
+    .locator('.outbox-card')
+    .filter({ hasText: buyerEmail })
+    .last();
+  const buyerHref = await buyerCard
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(buyerHref).toBeTruthy();
+  const buyerVerification = await request.get(buyerHref ?? '');
+  expect(buyerVerification.ok()).toBeTruthy();
+
+  await buyerPage.goto('/login');
+  await buyerPage.waitForLoadState('networkidle');
+  await buyerPage.getByLabel('E-mail').fill(buyerEmail);
+  await buyerPage.getByLabel('Senha').fill('nightmare123');
+  await buyerPage.getByRole('button', { name: 'Entrar' }).click();
+  await expect(buyerPage).toHaveURL(/\/account$/);
+  await buyerPage.goto('/marketplace');
+  await buyerPage.waitForLoadState('networkidle');
+  const listing = buyerPage
+    .locator('.campaign-card')
+    .filter({ hasText: 'Bless of Guardian' })
+    .first();
+  await listing.getByRole('button', { name: 'Comprar' }).click();
+  await expect(buyerPage.getByRole('status')).toContainText('Compra concluída');
+  await buyerPage.goto('/account');
+  await expect(
+    buyerPage.locator('.stat-card').filter({ hasText: 'Nightmare Coins' }),
+  ).toContainText('150');
+
+  await page.goto('/marketplace');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('Item do cofre').selectOption({ index: 1 });
+  await page.getByLabel('Preço em NC').fill('400');
+  await page.getByRole('button', { name: 'Publicar anúncio' }).click();
+  await expect(page.getByRole('status')).toContainText('Anúncio criado');
+
+  await buyerPage.goto('/marketplace');
+  await buyerPage.waitForLoadState('networkidle');
+  const offerListing = buyerPage
+    .locator('.campaign-card')
+    .filter({ hasText: 'Bless of Guardian' })
+    .first();
+  await offerListing.getByLabel('Oferta em NC').fill('100');
+  await offerListing.getByRole('button', { name: 'Enviar oferta' }).click();
+  await expect(buyerPage.getByRole('status')).toContainText('Oferta enviada');
+
+  await page.goto('/marketplace');
+  await page.waitForLoadState('networkidle');
+  const receivedOffer = page
+    .locator('.search-result')
+    .filter({ hasText: 'Bless of Guardian' })
+    .last();
+  await receivedOffer.getByRole('button', { name: 'Aceitar oferta' }).click();
+  await expect(page.getByRole('status')).toContainText('troca concluída');
+  await buyerPage.goto('/account');
+  await expect(
+    buyerPage.locator('.stat-card').filter({ hasText: 'Nightmare Coins' }),
+  ).toContainText('50');
+
+  await buyerContext.close();
 });
 
 test('admin publica notícia e visitante lê o artigo', async ({ page }) => {

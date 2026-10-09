@@ -429,3 +429,44 @@ Limitações documentadas:
 - A carteira ainda é uma projeção local; nenhuma escrita é enviada ao OpenMU.
 - Benefícios VIP são registrados no ledger, mas ainda não alteram regras reais de acesso ou personagem.
 - Mercado entre jogadores, PIX/Mercado Pago, reserva configurável e reconciliação externa continuam fora do escopo.
+
+A Fase 21 foi endurecida com painel administrativo `/admin/grants` para
+inspecionar concessões e repetir estados pendentes ou falhos. No simulador,
+Nightmare Coins são aditivas e VIP mantém o maior nível concedido; validade,
+renovação e estorno dependem do contrato real e continuam documentados como
+pendências.
+
+## Fase 22 — anúncios e descoberta do marketplace
+
+Estado: implementada no simulador; sem moeda real e sem escrita no OpenMU.
+
+Entregue:
+
+- Player anuncia uma unidade de item do cofre com preço em Nightmare Coins.
+- A unidade é retirada do cofre durante a criação do anúncio e fica reservada.
+- Busca por nome, filtros de preço, paginação e consulta dos próprios anúncios.
+- Cancelamento só funciona para anúncio ativo e devolve a unidade uma única vez.
+- Itens de outra conta, indisponíveis ou anúncios já finalizados são recusados.
+- Migration `0014_yielding_ultragirl.sql` criada e aplicada no PostgreSQL local.
+
+Regra local adotada: a Fase 22 aceita somente `NC` inteira como unidade de
+preço. Joias, múltiplas moedas e venda em reais ficam bloqueadas até aprovação
+de regras comerciais e integração do jogo.
+
+## Fase 23 — compra e ofertas em Nightmare Coins simulados
+
+Estado: implementada no simulador; sem integração OpenMU real.
+
+Entregue:
+
+- Compra direta faz débito do comprador, crédito do vendedor e entrega do item
+  em uma transação única.
+- Dois compradores não conseguem concluir o mesmo anúncio; o primeiro estado
+  ativo convertido em vendido vence.
+- Compra própria, saldo insuficiente e moeda incompatível são recusados.
+- Jogadores podem enviar ofertas em NC; o vendedor pode aceitar uma oferta.
+- Aceite liquida a oferta, rejeita as demais pendentes e registra a troca única.
+- O fluxo E2E cobre anúncio, compra direta e negociação por oferta.
+
+Pendências: validade/expiração automática de ofertas, comissão, arredondamento,
+estorno e integração de inventário/saldo real do OpenMU.

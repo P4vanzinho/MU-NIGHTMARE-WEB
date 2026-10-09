@@ -240,3 +240,62 @@ export const simulatedBenefitGrant = pgTable('simulated_benefit_grant', {
   status: text('status').notNull().default('granted'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
+
+export const simulatedMarketplaceListing = pgTable(
+  'simulated_marketplace_listing',
+  {
+    id: text('id').primaryKey(),
+    sellerId: text('seller_id')
+      .notNull()
+      .references(() => user.id),
+    itemName: text('item_name').notNull(),
+    quantity: integer('quantity').notNull().default(1),
+    currency: text('currency').notNull().default('NC'),
+    price: integer('price').notNull(),
+    status: text('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+);
+
+export const simulatedMarketplaceOffer = pgTable(
+  'simulated_marketplace_offer',
+  {
+    id: text('id').primaryKey(),
+    listingId: text('listing_id')
+      .notNull()
+      .references(() => simulatedMarketplaceListing.id, {
+        onDelete: 'cascade',
+      }),
+    buyerId: text('buyer_id')
+      .notNull()
+      .references(() => user.id),
+    amount: integer('amount').notNull(),
+    status: text('status').notNull().default('pending'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+);
+
+export const simulatedMarketplaceTrade = pgTable(
+  'simulated_marketplace_trade',
+  {
+    id: text('id').primaryKey(),
+    listingId: text('listing_id')
+      .notNull()
+      .unique()
+      .references(() => simulatedMarketplaceListing.id),
+    buyerId: text('buyer_id')
+      .notNull()
+      .references(() => user.id),
+    sellerId: text('seller_id')
+      .notNull()
+      .references(() => user.id),
+    itemName: text('item_name').notNull(),
+    quantity: integer('quantity').notNull(),
+    currency: text('currency').notNull(),
+    amount: integer('amount').notNull(),
+    status: text('status').notNull().default('completed'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  },
+);
