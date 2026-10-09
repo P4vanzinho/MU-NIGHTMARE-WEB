@@ -473,6 +473,9 @@ estorno e integração de inventário/saldo real do OpenMU.
 
 ## Decisões de produto para a Fase 24
 
+- A plataforma retém 20% do valor bruto da venda; o vendedor tem direito a
+  80%, antes de eventuais taxas do provedor de pagamento, cuja incidência
+  ainda será definida.
 - Uma venda em moeda real reserva o item quando o comprador inicia uma
   tentativa de pagamento válida, e não ao apenas abrir o anúncio.
 - A reserva identifica o comprador e tem prazo configurável; o primeiro valor
