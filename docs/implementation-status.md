@@ -508,3 +508,8 @@ estorno e integração de inventário/saldo real do OpenMU.
   ideia e variação posterior de preço não serão motivos automáticos.
 - Durante uma contestação, o saldo do vendedor permanece congelado e o caso
   exige análise administrativa com evidências do pagamento e do OpenMU.
+- Não entrega ou divergência comprovada resultam em estorno integral ao
+  comprador. Reversão automática só será usada quando for segura; não haverá
+  reentrega automática de item consumido ou impossível de reverter.
+- Entrega confirmada corretamente encerra a disputa sem estorno. Pagamento não
+  autorizado bloqueia a liquidação e vira incidente financeiro.
