@@ -513,3 +513,6 @@ estorno e integração de inventário/saldo real do OpenMU.
   reentrega automática de item consumido ou impossível de reverter.
 - Entrega confirmada corretamente encerra a disputa sem estorno. Pagamento não
   autorizado bloqueia a liquidação e vira incidente financeiro.
+- Chargebacks posteriores continuam podendo ser analisados após o saque. O
+  vendedor terá uma reserva de segurança para cobrir esses casos; percentual e
+  duração da reserva serão definidos após conhecermos o provedor real.
