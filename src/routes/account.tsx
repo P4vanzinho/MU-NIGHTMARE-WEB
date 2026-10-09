@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { getCurrentSession } from '#/server/auth/session';
@@ -75,6 +75,9 @@ function AccountPage() {
         >
           Sair
         </button>
+        <a className="button button-secondary" href="/account/transfers">
+          Transferir item simulado
+        </a>
         <form
           className="auth-form account-password-form"
           onSubmit={handleChangePassword}
@@ -161,6 +164,7 @@ function AccountPage() {
           </p>
         </section>
       </section>
+      <Outlet />
     </PageShell>
   );
 }

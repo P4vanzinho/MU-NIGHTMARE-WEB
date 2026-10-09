@@ -370,3 +370,18 @@ Pendente e documentado para a próxima etapa:
 - Subir PostgreSQL via Docker e aplicar migrations em ambiente local.
 - Exercitar restauração, reinício e carga concorrente com Playwright e banco disponível.
 - Conectar o adaptador real e registrar erros/latências das chamadas OpenMU.
+
+## Fase 18 — transferência de itens simulada
+
+Estado: implementada no simulador; integração OpenMU real deliberadamente bloqueada.
+
+Entregue:
+
+- Transferência autenticada em `/account/transfers` usando e-mail do destinatário, item e quantidade.
+- Atualização atômica do cofre de origem e destino em uma transação Drizzle.
+- Protocolo persistido em `simulated_item_transfer` para rastreabilidade.
+- Validação de titularidade, quantidade disponível, destinatário e prevenção de envio para a própria conta.
+- Migration `0011_tiresome_malcolm_colcord.sql` aplicada no PostgreSQL local.
+- Nenhuma escrita é enviada ao OpenMU.
+
+Pendente para a evolução do simulador: idempotência explícita por chave de requisição, tela administrativa de recuperação e ensaios concorrentes automatizados. A integração real só pode ser habilitada quando o contrato de inventário e reserva do OpenMU estiver disponível.

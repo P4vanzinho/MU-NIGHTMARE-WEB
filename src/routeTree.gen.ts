@@ -23,6 +23,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ServerRouteImport } from './routes/server'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as AccountTransfersRouteImport } from './routes/account/transfers'
 import { Route as AdminCampaignsRouteImport } from './routes/admin/campaigns'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
@@ -103,6 +104,11 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountTransfersRoute = AccountTransfersRouteImport.update({
+  id: '/transfers',
+  path: '/transfers',
+  getParentRoute: () => AccountRoute,
+} as any)
 const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
   id: '/campaigns',
   path: '/campaigns',
@@ -151,7 +157,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
   '/events': typeof EventsRoute
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -176,7 +183,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
   '/events': typeof EventsRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -202,7 +210,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/account': typeof AccountRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/bugreport': typeof BugreportRoute
   '/events': typeof EventsRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/server': typeof ServerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/server'
     | '/verify-email'
+    | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
     | '/admin/news'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/server'
     | '/verify-email'
+    | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
     | '/admin/news'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/server'
     | '/verify-email'
+    | '/account/transfers'
     | '/admin/campaigns'
     | '/admin/comments'
     | '/admin/news'
@@ -305,7 +317,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
+  AccountRoute: typeof AccountRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   BugreportRoute: typeof BugreportRoute
   EventsRoute: typeof EventsRoute
@@ -422,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/transfers': {
+      id: '/account/transfers'
+      path: '/transfers'
+      fullPath: '/account/transfers'
+      preLoaderRoute: typeof AccountTransfersRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/admin/campaigns': {
       id: '/admin/campaigns'
       path: '/campaigns'
@@ -488,6 +507,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AccountRouteChildren {
+  AccountTransfersRoute: typeof AccountTransfersRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountTransfersRoute: AccountTransfersRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
 interface AdminRouteChildren {
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
@@ -529,7 +559,7 @@ const RankingRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
+  AccountRoute: AccountRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   BugreportRoute: BugreportRoute,
   EventsRoute: EventsRoute,

@@ -172,3 +172,18 @@ export const operationLog = pgTable('operation_log', {
   detail: text('detail').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
+
+export const simulatedItemTransfer = pgTable('simulated_item_transfer', {
+  id: text('id').primaryKey(),
+  protocol: text('protocol').notNull().unique(),
+  sourceOwnerId: text('source_owner_id')
+    .notNull()
+    .references(() => user.id),
+  targetOwnerId: text('target_owner_id')
+    .notNull()
+    .references(() => user.id),
+  itemName: text('item_name').notNull(),
+  quantity: integer('quantity').notNull(),
+  status: text('status').notNull().default('completed'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+});
