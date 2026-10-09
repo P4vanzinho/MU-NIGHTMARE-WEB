@@ -470,3 +470,16 @@ Entregue:
 
 Pendências: validade/expiração automática de ofertas, comissão, arredondamento,
 estorno e integração de inventário/saldo real do OpenMU.
+
+## Decisões de produto para a Fase 24
+
+- Uma venda em moeda real reserva o item quando o comprador inicia uma
+  tentativa de pagamento válida, e não ao apenas abrir o anúncio.
+- A reserva identifica o comprador e tem prazo configurável; o primeiro valor
+  de teste será 15 minutos.
+- Enquanto a reserva estiver ativa, o anúncio não pode ser iniciado por outro
+  comprador.
+- Pagamento confirmado liquida a venda; falha, cancelamento ou expiração
+  liberam o item novamente.
+- Essa regra será simulada localmente antes de qualquer integração com Mercado
+  Pago ou OpenMU.
