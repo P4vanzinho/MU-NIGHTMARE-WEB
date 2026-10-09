@@ -493,3 +493,6 @@ estorno e integração de inventário/saldo real do OpenMU.
 - Após a confirmação de entrega pelo OpenMU, a contestação ficará aberta por
   24 horas inicialmente. O prazo será configurável e, durante a contestação,
   o valor continuará retido.
+- Depois da contestação, o valor passa a ficar disponível para saque sob
+  demanda do vendedor. O repasse não será disparado automaticamente; o ledger
+  usará estados de disponível, saque solicitado, pago ou falho.
