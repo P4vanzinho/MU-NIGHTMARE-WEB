@@ -295,16 +295,24 @@ export const createNewsComment = createServerFn({ method: 'POST' })
       .where(and(eq(newsPost.slug, data.slug), isNotNull(newsPost.publishedAt)))
       .limit(1);
     if (!post) throw new Error('Notícia não encontrada.');
+    const id = crypto.randomUUID();
+    const createdAt = new Date();
     await db.insert(newsComment).values({
-      id: crypto.randomUUID(),
+      id,
       postId: post.id,
       authorId: viewer.user.id,
       body: data.body,
       status: 'visible',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt,
+      updatedAt: createdAt,
     });
-    return { ok: true };
+    return {
+      id,
+      body: data.body,
+      authorId: viewer.user.id,
+      authorName: viewer.user.name,
+      createdAt: createdAt.toISOString(),
+    } satisfies NewsCommentView;
   });
 
 export const removeNewsComment = createServerFn({ method: 'POST' })

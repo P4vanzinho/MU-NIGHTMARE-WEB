@@ -25,17 +25,25 @@ export const Route = createFileRoute('/news/$slug')({
 function NewsPostPage() {
   const { post, session } = Route.useLoaderData();
   const [comment, setComment] = useState('');
+  const [comments, setComments] = useState(post.comments);
+  const [liked, setLiked] = useState(post.likedByViewer);
+  const [likeCount, setLikeCount] = useState(post.likeCount);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   async function handleLike() {
     setError(null);
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
+    setLiked(!previousLiked);
+    setLikeCount(previousLikeCount + (previousLiked ? -1 : 1));
     try {
       await setNewsLike({
-        data: { slug: post.slug, liked: !post.likedByViewer },
+        data: { slug: post.slug, liked: !previousLiked },
       });
-      window.location.reload();
     } catch (likeError) {
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
       setError(
         likeError instanceof Error
           ? likeError.message
@@ -49,8 +57,12 @@ function NewsPostPage() {
     setIsSaving(true);
     setError(null);
     try {
-      await createNewsComment({ data: { slug: post.slug, body: comment } });
-      window.location.reload();
+      const created = await createNewsComment({
+        data: { slug: post.slug, body: comment },
+      });
+      setComments((current) => [...current, created]);
+      setComment('');
+      setIsSaving(false);
     } catch (commentError) {
       setError(
         commentError instanceof Error
@@ -64,8 +76,14 @@ function NewsPostPage() {
   async function handleRemoveComment(commentId: string) {
     setError(null);
     try {
-      await removeNewsComment({ data: { commentId } });
-      window.location.reload();
+      const previousComments = comments;
+      setComments((current) => current.filter((item) => item.id !== commentId));
+      try {
+        await removeNewsComment({ data: { commentId } });
+      } catch (removeError) {
+        setComments(previousComments);
+        throw removeError;
+      }
     } catch (removeError) {
       setError(
         removeError instanceof Error
@@ -103,14 +121,14 @@ function NewsPostPage() {
             className="button button-secondary"
             onClick={handleLike}
           >
-            {post.likedByViewer ? 'Descurtir' : 'Curtir'} · {post.likeCount}
+            {liked ? 'Descurtir' : 'Curtir'} · {likeCount}
           </button>
           <h2>Comentários</h2>
-          {post.comments.length === 0 ? (
+          {comments.length === 0 ? (
             <p className="form-help">Ainda não há comentários.</p>
           ) : (
             <div className="comment-list">
-              {post.comments.map((item) => (
+              {comments.map((item) => (
                 <article className="comment-card" key={item.id}>
                   <div>
                     <strong>{item.authorName}</strong>

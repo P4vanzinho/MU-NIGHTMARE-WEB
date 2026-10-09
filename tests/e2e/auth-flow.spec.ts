@@ -224,10 +224,13 @@ test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
 
   await page.goto('/news');
   await page.waitForLoadState('networkidle');
+  await page.reload();
   const post = page.locator('.news-post-preview').filter({ hasText: title });
   await expect(post).toBeVisible();
   await post.getByRole('link', { name: 'Ler notícia' }).click();
-  await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: title, level: 1 }),
+  ).toBeVisible();
   await expect(
     page.getByText('Conteúdo completo da publicação de QA.'),
   ).toBeVisible();
@@ -289,11 +292,13 @@ test('player curte e comenta, admin modera o comentário', async ({
   await playerPage.getByRole('button', { name: 'Entrar' }).click();
   await expect(playerPage).toHaveURL(/\/account$/);
   await playerPage.goto('/news');
+  await playerPage.waitForLoadState('networkidle');
   await playerPage
     .locator('.news-post-preview')
     .filter({ hasText: title })
     .getByRole('link', { name: 'Ler notícia' })
     .click();
+  await playerPage.waitForLoadState('networkidle');
   await playerPage.getByRole('button', { name: /Curtir · 0/ }).click();
   await expect(
     playerPage.getByRole('button', { name: /Descurtir · 1/ }),
@@ -305,6 +310,7 @@ test('player curte e comenta, admin modera o comentário', async ({
   await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
 
   await page.goto('/admin/comments');
+  await page.waitForLoadState('networkidle');
   const comment = page
     .locator('.comment-card')
     .filter({ hasText: 'Comentário de QA.' });

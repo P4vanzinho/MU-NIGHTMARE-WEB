@@ -78,7 +78,6 @@ function AdminNewsPage() {
       }
       setMessage(form.id ? 'Notícia atualizada.' : 'Notícia publicada.');
       setForm(emptyForm);
-      window.location.reload();
     } catch (saveError) {
       setError(
         saveError instanceof Error
