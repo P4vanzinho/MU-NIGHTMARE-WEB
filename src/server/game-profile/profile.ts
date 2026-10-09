@@ -33,14 +33,19 @@ async function ensureProfile(ownerId: string) {
     .limit(1);
   if (character) return;
   const now = new Date();
-  await db.insert(simulatedCharacter).values({
-    id: crypto.randomUUID(),
-    ownerId,
-    name: 'Ranger do Nightmare',
-    characterClass: 'Blade Knight',
-    level: 120,
-    updatedAt: now,
-  });
+  const [createdCharacter] = await db
+    .insert(simulatedCharacter)
+    .values({
+      id: crypto.randomUUID(),
+      ownerId,
+      name: 'Ranger do Nightmare',
+      characterClass: 'Blade Knight',
+      level: 120,
+      updatedAt: now,
+    })
+    .onConflictDoNothing()
+    .returning({ id: simulatedCharacter.id });
+  if (!createdCharacter) return;
   await db.insert(simulatedVaultItem).values([
     {
       id: crypto.randomUUID(),
@@ -57,12 +62,15 @@ async function ensureProfile(ownerId: string) {
       location: 'vault',
     },
   ]);
-  await db.insert(simulatedPlayerWallet).values({
-    ownerId,
-    nightmareCoins: 250,
-    vipLevel: 1,
-    updatedAt: now,
-  });
+  await db
+    .insert(simulatedPlayerWallet)
+    .values({
+      ownerId,
+      nightmareCoins: 250,
+      vipLevel: 1,
+      updatedAt: now,
+    })
+    .onConflictDoNothing();
 }
 
 export const getMyGameProfile = createServerFn({ method: 'GET' }).handler(
