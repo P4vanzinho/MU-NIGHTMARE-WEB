@@ -521,3 +521,29 @@ estorno e integração de inventário/saldo real do OpenMU.
   punições e vínculo aprovado com o provedor. O primeiro saque pode passar por
   revisão administrativa, e KYC adicional será exigido somente se o provedor
   real determinar.
+
+## Fase 24 — escrow local para vendas em reais
+
+Estado: implementada como simulador local; não movimenta dinheiro real nem
+chama Mercado Pago ou OpenMU.
+
+Entregue:
+
+- Vínculo simulado de conta Mercado Pago e publicação de item em BRL.
+- Reserva transacional de 15 minutos, eventos de pagamento idempotentes e
+  estados para falha, expiração e confirmação tardia.
+- Confirmação administrativa de entrega simulada, janela de contestação de 24
+  horas, saldo pendente/disponível e solicitação de saque.
+- Painel `/admin/cash` para confirmar entrega, liberar contestação e resolver
+  disputas com reembolso ou recusa.
+- Migration `0015_useful_odin.sql` aplicada no PostgreSQL local.
+
+Pendências explícitas para a integração real:
+
+- OAuth, webhooks e reconciliação do Mercado Pago ainda não estão conectados.
+- A entrega ainda é uma ação administrativa simulada; o adaptador OpenMU deve
+  confirmar item, quantidade e reversão antes de liberar valores.
+- O simulador permite liberar a contestação por ação administrativa para QA;
+  produção deverá respeitar o relógio e as evidências do provedor.
+- Revisão de chargeback e reserva de segurança ainda precisam de percentuais e
+  prazos definidos com o provedor.

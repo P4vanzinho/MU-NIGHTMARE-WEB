@@ -27,6 +27,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AccountTransfersRouteImport } from './routes/account/transfers'
 import { Route as AdminCampaignsRouteImport } from './routes/admin/campaigns'
+import { Route as AdminCashRouteImport } from './routes/admin/cash'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminGrantsRouteImport } from './routes/admin/grants'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
@@ -128,6 +129,11 @@ const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
   path: '/campaigns',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCashRoute = AdminCashRouteImport.update({
+  id: '/cash',
+  path: '/cash',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCommentsRoute = AdminCommentsRouteImport.update({
   id: '/comments',
   path: '/comments',
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cash': typeof AdminCashRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cash': typeof AdminCashRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/account/transfers': typeof AccountTransfersRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cash': typeof AdminCashRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/grants': typeof AdminGrantsRoute
   '/admin/news': typeof AdminNewsRoute
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
+    | '/admin/cash'
     | '/admin/comments'
     | '/admin/grants'
     | '/admin/news'
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
+    | '/admin/cash'
     | '/admin/comments'
     | '/admin/grants'
     | '/admin/news'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/account/transfers'
     | '/admin/campaigns'
+    | '/admin/cash'
     | '/admin/comments'
     | '/admin/grants'
     | '/admin/news'
@@ -512,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCampaignsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cash': {
+      id: '/admin/cash'
+      path: '/cash'
+      fullPath: '/admin/cash'
+      preLoaderRoute: typeof AdminCashRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/comments': {
       id: '/admin/comments'
       path: '/comments'
@@ -598,6 +617,7 @@ const AccountRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminCampaignsRoute: typeof AdminCampaignsRoute
+  AdminCashRoute: typeof AdminCashRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminGrantsRoute: typeof AdminGrantsRoute
   AdminNewsRoute: typeof AdminNewsRoute
@@ -608,6 +628,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCampaignsRoute: AdminCampaignsRoute,
+  AdminCashRoute: AdminCashRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminGrantsRoute: AdminGrantsRoute,
   AdminNewsRoute: AdminNewsRoute,

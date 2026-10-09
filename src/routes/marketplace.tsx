@@ -4,6 +4,18 @@ import { useState } from 'react';
 import { getCurrentSession } from '#/server/auth/session';
 import { getMyGameProfile } from '#/server/game-profile/profile';
 import {
+  connectSimulatedPaymentAccount,
+  createCashListing,
+  getCashListings,
+  getMyCashOrders,
+  getMyCashPayouts,
+  getSellerCashBalance,
+  getSellerPaymentAccount,
+  initiateCashOrder,
+  requestCashPayout,
+  simulateCashPayment,
+} from '#/server/marketplace/cash';
+import {
   acceptMarketplaceOffer,
   buyMarketplaceListing,
   cancelMarketplaceListing,
@@ -17,18 +29,53 @@ import { PageShell } from '#/shared/layout/page-shell';
 
 export const Route = createFileRoute('/marketplace')({
   loader: async () => {
-    const [session, market] = await Promise.all([
+    const [session, market, cashListings] = await Promise.all([
       getCurrentSession(),
       getMarketplaceListings({ data: { page: 1 } }),
+      getCashListings(),
     ]);
     if (!session)
-      return { session: null, market, profile: null, mine: [], offers: [] };
-    const [profile, mine, offers] = await Promise.all([
+      return {
+        session: null,
+        market,
+        cashListings,
+        profile: null,
+        mine: [],
+        offers: [],
+        cashAccount: null,
+        cashOrders: [],
+        cashBalance: null,
+        cashPayouts: [],
+      };
+    const [
+      profile,
+      mine,
+      offers,
+      cashAccount,
+      cashOrders,
+      cashBalance,
+      cashPayouts,
+    ] = await Promise.all([
       getMyGameProfile(),
       getMyMarketplaceListings(),
       getMarketplaceOffersForSeller(),
+      getSellerPaymentAccount(),
+      getMyCashOrders(),
+      getSellerCashBalance(),
+      getMyCashPayouts(),
     ]);
-    return { session, market, profile, mine, offers };
+    return {
+      session,
+      market,
+      cashListings,
+      profile,
+      mine,
+      offers,
+      cashAccount,
+      cashOrders,
+      cashBalance,
+      cashPayouts,
+    };
   },
   component: MarketplacePage,
 });
@@ -41,6 +88,8 @@ function MarketplacePage() {
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const [listingPrice, setListingPrice] = useState('');
+  const [cashItem, setCashItem] = useState('');
+  const [cashPrice, setCashPrice] = useState('');
   const [offerAmounts, setOfferAmounts] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +121,76 @@ function MarketplacePage() {
         listingError instanceof Error
           ? listingError.message
           : 'Não foi possível criar o anúncio.',
+      );
+    }
+  }
+
+  async function connectPayment() {
+    setError(null);
+    try {
+      await connectSimulatedPaymentAccount();
+      setMessage('Conta Mercado Pago simulada conectada.');
+      window.location.reload();
+    } catch (connectError) {
+      setError(
+        connectError instanceof Error
+          ? connectError.message
+          : 'Não foi possível conectar a conta.',
+      );
+    }
+  }
+
+  async function announceCash(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    try {
+      await createCashListing({
+        data: { itemId: cashItem, priceCents: Number(cashPrice) },
+      });
+      setMessage('Anúncio em reais criado.');
+      window.location.reload();
+    } catch (cashError) {
+      setError(
+        cashError instanceof Error
+          ? cashError.message
+          : 'Não foi possível criar o anúncio em reais.',
+      );
+    }
+  }
+
+  async function buyCash(listingId: string) {
+    setError(null);
+    try {
+      const order = await initiateCashOrder({ data: { listingId } });
+      await simulateCashPayment({
+        data: {
+          orderId: order.id,
+          eventId: `cash-${crypto.randomUUID()}`,
+          status: 'confirmed',
+        },
+      });
+      setMessage('Pagamento reservado; aguardando entrega simulada.');
+      window.location.reload();
+    } catch (cashError) {
+      setError(
+        cashError instanceof Error
+          ? cashError.message
+          : 'Não foi possível iniciar o pagamento.',
+      );
+    }
+  }
+
+  async function requestPayout(payoutId: string) {
+    setError(null);
+    try {
+      await requestCashPayout({ data: { payoutId } });
+      setMessage('Saque solicitado no simulador.');
+      window.location.reload();
+    } catch (payoutError) {
+      setError(
+        payoutError instanceof Error
+          ? payoutError.message
+          : 'Não foi possível solicitar o saque.',
       );
     }
   }
@@ -303,6 +422,134 @@ function MarketplacePage() {
                 </div>
               </section>
             )}
+            <section className="content-section">
+              <p className="eyebrow">VENDAS EM REAIS · SIMULADOR</p>
+              <h2>Conta de recebimento</h2>
+              <p className="form-help">
+                A plataforma retém 20%; o vendedor recebe 80% após entrega e 24
+                horas de contestação.
+              </p>
+              {initial.cashAccount?.status !== 'connected' ? (
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  onClick={connectPayment}
+                >
+                  Conectar Mercado Pago simulado
+                </button>
+              ) : (
+                <>
+                  <p className="form-success">Conta conectada.</p>
+                  <form className="auth-form" onSubmit={announceCash}>
+                    <label>
+                      Item do cofre
+                      <select
+                        required
+                        value={cashItem}
+                        onChange={(event) => setCashItem(event.target.value)}
+                      >
+                        <option value="">Selecione</option>
+                        {initial.profile.vault.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.itemName} · {item.quantity} disponíveis
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Preço em reais (centavos)
+                      <input
+                        required
+                        min="100"
+                        type="number"
+                        value={cashPrice}
+                        onChange={(event) => setCashPrice(event.target.value)}
+                      />
+                    </label>
+                    <button className="button button-primary" type="submit">
+                      Publicar venda em reais
+                    </button>
+                  </form>
+                </>
+              )}
+              <div className="campaign-grid">
+                {initial.cashListings.map((listing) => (
+                  <article className="campaign-card" key={listing.id}>
+                    <span>Venda protegida</span>
+                    <h3>{listing.itemName}</h3>
+                    <strong>
+                      {(listing.price / 100).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                    </strong>
+                    {listing.sellerId !== initial.session.user.id && (
+                      <button
+                        className="button button-primary"
+                        type="button"
+                        onClick={() => buyCash(listing.id)}
+                      >
+                        Iniciar pagamento
+                      </button>
+                    )}
+                  </article>
+                ))}
+              </div>
+              <div className="account-card">
+                <span>Saldo pendente</span>
+                <strong>
+                  {(
+                    (initial.cashBalance?.pendingCents ?? 0) / 100
+                  ).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })}
+                </strong>
+                <span>Saldo disponível</span>
+                <strong>
+                  {(
+                    (initial.cashBalance?.availableCents ?? 0) / 100
+                  ).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })}
+                </strong>
+              </div>
+              {initial.cashPayouts.map((payout) => (
+                <div className="search-result" key={payout.id}>
+                  <strong>
+                    {(payout.amountCents / 100).toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    })}
+                  </strong>
+                  <span>Repasse · {payout.status}</span>
+                  {payout.status === 'available' && (
+                    <button
+                      className="button button-secondary"
+                      type="button"
+                      onClick={() => requestPayout(payout.id)}
+                    >
+                      Solicitar saque
+                    </button>
+                  )}
+                </div>
+              ))}
+              <div className="search-results">
+                {initial.cashOrders.map((order) => (
+                  <div className="search-result" key={order.id}>
+                    <strong>Pedido em reais</strong>
+                    <span>
+                      {(order.grossCents / 100).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}{' '}
+                      · {order.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
           </>
         )}
         {message && (

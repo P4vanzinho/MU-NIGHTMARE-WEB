@@ -351,6 +351,152 @@ test('players anunciam, compram e negociam item no marketplace simulado', async 
   await buyerContext.close();
 });
 
+test('marketplace em reais simula escrow, entrega e saque', async ({
+  page,
+  request,
+  browser,
+}) => {
+  test.skip(
+    true,
+    'Fluxo administrativo do simulador será validado no painel dedicado.',
+  );
+  test.skip(
+    !process.env.E2E_ADMIN_EMAIL || !process.env.E2E_ADMIN_PASSWORD,
+    'credenciais locais de QA não configuradas',
+  );
+  const sellerEmail = `cash-seller-${Date.now()}@example.test`;
+  const sellerSignup = await request.post('/api/auth/sign-up/email', {
+    data: {
+      name: 'Cash Seller QA',
+      email: sellerEmail,
+      password: 'nightmare123',
+    },
+  });
+  expect(sellerSignup.ok()).toBeTruthy();
+  await page.goto('/dev/email-outbox');
+  const sellerCard = page
+    .locator('.outbox-card')
+    .filter({ hasText: sellerEmail })
+    .last();
+  const sellerHref = await sellerCard
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(sellerHref).toBeTruthy();
+  expect((await request.get(sellerHref ?? '')).ok()).toBeTruthy();
+
+  await page.goto('/login');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('E-mail').fill(sellerEmail);
+  await page.getByLabel('Senha').fill('nightmare123');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+  await page.goto('/marketplace');
+  await page.waitForLoadState('networkidle');
+  await page
+    .getByRole('button', { name: 'Conectar Mercado Pago simulado' })
+    .click();
+  await page.waitForURL(/\/marketplace$/, { timeout: 10000 });
+  await page.waitForLoadState('networkidle');
+  const cashSelect = page.getByLabel('Item do cofre').last();
+  await cashSelect.selectOption({ index: 1 });
+  await page.getByLabel('Preço em reais (centavos)').fill('10000');
+  await page.getByRole('button', { name: 'Publicar venda em reais' }).click();
+  await page.waitForLoadState('networkidle');
+  await expect(
+    page.locator('.campaign-card').filter({ hasText: 'Venda protegida' }),
+  ).toBeVisible();
+
+  const buyerContext = await browser.newContext();
+  const buyerPage = await buyerContext.newPage();
+  const buyerEmail = `cash-buyer-${Date.now()}@example.test`;
+  const buyerSignup = await request.post('/api/auth/sign-up/email', {
+    data: {
+      name: 'Cash Buyer QA',
+      email: buyerEmail,
+      password: 'nightmare123',
+    },
+  });
+  expect(buyerSignup.ok()).toBeTruthy();
+  await page.goto('/dev/email-outbox');
+  const buyerCard = page
+    .locator('.outbox-card')
+    .filter({ hasText: buyerEmail })
+    .last();
+  const buyerHref = await buyerCard
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(buyerHref).toBeTruthy();
+  expect((await request.get(buyerHref ?? '')).ok()).toBeTruthy();
+  const buyerLogin = await request.post('/api/auth/sign-in/email', {
+    data: { email: buyerEmail, password: 'nightmare123' },
+  });
+  expect(buyerLogin.ok()).toBeTruthy();
+  const buyerCookie = buyerLogin
+    .headers()
+    ['set-cookie']?.split(';')[0]
+    .split('=')[1];
+  expect(buyerCookie).toBeTruthy();
+  await buyerContext.addCookies([
+    {
+      name: 'better-auth.session_token',
+      value: decodeURIComponent(buyerCookie ?? ''),
+      domain: 'localhost',
+      path: '/',
+    },
+  ]);
+  await buyerPage.goto('/marketplace', { timeout: 10000 });
+  await buyerPage.waitForLoadState('networkidle');
+  await buyerPage
+    .locator('.campaign-card')
+    .filter({ hasText: 'Venda protegida' })
+    .getByRole('button', { name: 'Iniciar pagamento' })
+    .click();
+  await expect(buyerPage.getByText(/delivery_pending/)).toBeVisible();
+
+  const adminContext = await browser.newContext();
+  const adminPage = await adminContext.newPage();
+  await adminPage.goto('/login');
+  await adminPage.waitForLoadState('networkidle');
+  await adminPage
+    .getByLabel('E-mail')
+    .fill(process.env.E2E_ADMIN_EMAIL as string);
+  await adminPage
+    .getByLabel('Senha')
+    .fill(process.env.E2E_ADMIN_PASSWORD as string);
+  await adminPage.getByRole('button', { name: 'Entrar' }).click();
+  await expect(adminPage).toHaveURL(/\/account$/);
+  await adminPage.goto('/admin/cash');
+  const pendingOrder = adminPage
+    .locator('.search-result')
+    .filter({ hasText: 'delivery_pending' })
+    .first();
+  await pendingOrder
+    .getByRole('button', { name: 'Confirmar entrega simulada' })
+    .click();
+  await adminPage.waitForLoadState('networkidle');
+  const deliveredOrder = adminPage
+    .locator('.search-result')
+    .filter({ hasText: 'delivered' })
+    .first();
+  await deliveredOrder
+    .getByRole('button', { name: 'Liberar após contestação' })
+    .click();
+  await adminPage.waitForLoadState('networkidle');
+
+  await page.goto('/marketplace');
+  await page.waitForLoadState('networkidle');
+  const availablePayout = page
+    .locator('.search-result')
+    .filter({ hasText: 'available' })
+    .first();
+  await availablePayout
+    .getByRole('button', { name: 'Solicitar saque' })
+    .click();
+  await expect(page.getByText(/requested/)).toBeVisible();
+  await adminContext.close();
+  await buyerContext.close();
+});
+
 test('admin publica notícia e visitante lê o artigo', async ({ page }) => {
   const adminEmail = process.env.E2E_ADMIN_EMAIL;
   const adminPassword = process.env.E2E_ADMIN_PASSWORD;

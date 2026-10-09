@@ -299,3 +299,97 @@ export const simulatedMarketplaceTrade = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   },
 );
+
+export const simulatedSellerPaymentAccount = pgTable(
+  'simulated_seller_payment_account',
+  {
+    id: text('id').primaryKey(),
+    ownerId: text('owner_id')
+      .notNull()
+      .unique()
+      .references(() => user.id),
+    provider: text('provider').notNull().default('mercado_pago'),
+    status: text('status').notNull().default('not_connected'),
+    externalReference: text('external_reference'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+);
+
+export const simulatedCashOrder = pgTable('simulated_cash_order', {
+  id: text('id').primaryKey(),
+  listingId: text('listing_id')
+    .notNull()
+    .unique()
+    .references(() => simulatedMarketplaceListing.id),
+  buyerId: text('buyer_id')
+    .notNull()
+    .references(() => user.id),
+  sellerId: text('seller_id')
+    .notNull()
+    .references(() => user.id),
+  grossCents: integer('gross_cents').notNull(),
+  platformFeeCents: integer('platform_fee_cents').notNull(),
+  sellerNetCents: integer('seller_net_cents').notNull(),
+  status: text('status').notNull().default('reserved'),
+  reservationExpiresAt: timestamp('reservation_expires_at', {
+    withTimezone: true,
+  }).notNull(),
+  contestationEndsAt: timestamp('contestation_ends_at', {
+    withTimezone: true,
+  }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const simulatedCashPaymentEvent = pgTable(
+  'simulated_cash_payment_event',
+  {
+    id: text('id').primaryKey(),
+    eventId: text('event_id').notNull().unique(),
+    orderId: text('order_id')
+      .notNull()
+      .references(() => simulatedCashOrder.id, { onDelete: 'cascade' }),
+    status: text('status').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  },
+);
+
+export const simulatedSellerBalance = pgTable('simulated_seller_balance', {
+  ownerId: text('owner_id')
+    .primaryKey()
+    .references(() => user.id),
+  pendingCents: integer('pending_cents').notNull().default(0),
+  availableCents: integer('available_cents').notNull().default(0),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
+export const simulatedCashPayout = pgTable('simulated_cash_payout', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id')
+    .notNull()
+    .unique()
+    .references(() => simulatedCashOrder.id),
+  sellerId: text('seller_id')
+    .notNull()
+    .references(() => user.id),
+  amountCents: integer('amount_cents').notNull(),
+  status: text('status').notNull().default('held'),
+  requestedAt: timestamp('requested_at', { withTimezone: true }),
+  settledAt: timestamp('settled_at', { withTimezone: true }),
+});
+
+export const simulatedCashDispute = pgTable('simulated_cash_dispute', {
+  id: text('id').primaryKey(),
+  orderId: text('order_id')
+    .notNull()
+    .unique()
+    .references(() => simulatedCashOrder.id),
+  reporterId: text('reporter_id')
+    .notNull()
+    .references(() => user.id),
+  reason: text('reason').notNull(),
+  status: text('status').notNull().default('open'),
+  resolution: text('resolution'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+});
