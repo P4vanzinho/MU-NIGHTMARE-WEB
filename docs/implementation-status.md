@@ -489,3 +489,6 @@ estorno e integração de inventário/saldo real do OpenMU.
   decisão administrativa.
 - Essa regra será simulada localmente antes de qualquer integração com Mercado
   Pago ou OpenMU.
+- Após a confirmação de entrega pelo OpenMU, a contestação ficará aberta por
+  24 horas inicialmente. O prazo será configurável e, durante a contestação,
+  o valor continuará retido.
