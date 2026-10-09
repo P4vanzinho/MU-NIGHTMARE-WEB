@@ -328,11 +328,13 @@ test('player envia report e acompanha somente o próprio protocolo', async ({
   expect(verificationResponse.ok()).toBeTruthy();
 
   await page.goto('/login');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('E-mail').fill(email);
   await page.getByLabel('Senha').fill('nightmare123');
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page).toHaveURL(/\/account$/);
   await page.goto('/bugreport');
+  await page.waitForLoadState('networkidle');
   await page.getByLabel('Título').fill(title);
   await page
     .getByLabel('Passos para reproduzir')
@@ -343,7 +345,7 @@ test('player envia report e acompanha somente o próprio protocolo', async ({
   await page.getByRole('button', { name: 'Enviar report' }).click();
   await expect(page.getByRole('status')).toContainText('Report enviado');
   await expect(page.getByText(title)).toBeVisible();
-  await expect(page.getByText(/NM-\d{8}-[A-Z0-9]{8}/)).toBeVisible();
+  await expect(page.getByRole('status')).toContainText(/NM-\d{8}-[A-Z0-9]{8}/);
 });
 
 test('visitante consulta ranking, busca e abre perfil público', async ({
