@@ -496,3 +496,5 @@ estorno e integração de inventário/saldo real do OpenMU.
 - Depois da contestação, o valor passa a ficar disponível para saque sob
   demanda do vendedor. O repasse não será disparado automaticamente; o ledger
   usará estados de disponível, saque solicitado, pago ou falho.
+- No simulador local não haverá valor mínimo de saque. Em produção, o limite
+  será definido depois de conhecer as tarifas e exigências reais do provedor.
