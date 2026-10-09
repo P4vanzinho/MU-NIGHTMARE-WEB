@@ -128,6 +128,49 @@ test('admin autenticado acessa o painel administrativo', async ({
   ).toContainText('ativa');
 });
 
+test('player compra oferta simulada e recebe Nightmare Coins uma vez', async ({
+  page,
+  request,
+}) => {
+  const email = `shop-${Date.now()}@example.test`;
+  const signup = await request.post('/api/auth/sign-up/email', {
+    data: { name: 'Shop QA', email, password: 'nightmare123' },
+  });
+  expect(signup.ok()).toBeTruthy();
+
+  await page.goto('/dev/email-outbox');
+  const verificationEmail = page
+    .locator('.outbox-card')
+    .filter({ hasText: email })
+    .last();
+  const verificationHref = await verificationEmail
+    .getByRole('link', { name: 'Confirmar endereço' })
+    .getAttribute('href');
+  expect(verificationHref).toBeTruthy();
+  const verificationResponse = await request.get(verificationHref ?? '');
+  expect(verificationResponse.ok()).toBeTruthy();
+
+  await page.goto('/login');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('E-mail').fill(email);
+  await page.getByLabel('Senha').fill('nightmare123');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+
+  await page.goto('/shop');
+  await page.waitForLoadState('networkidle');
+  const offer = page
+    .locator('.campaign-card')
+    .filter({ hasText: '500 Nightmare Coins' });
+  await offer.getByRole('button', { name: 'Criar pedido simulado' }).click();
+  await expect(page.getByRole('status')).toContainText('confirmado');
+
+  await page.goto('/account');
+  await expect(
+    page.locator('.stat-card').filter({ hasText: 'Nightmare Coins' }),
+  ).toContainText('750');
+});
+
 test('player solicita recuperação e define uma nova senha', async ({
   page,
 }) => {
@@ -255,6 +298,7 @@ test('player curte e comenta, admin modera o comentário', async ({
   await expect(page).toHaveURL(/\/account$/);
 
   const title = `Interações QA ${Date.now()}`;
+  const commentBody = `Comentário de QA ${Date.now()}`;
   await page.goto('/admin/news');
   await page.waitForLoadState('networkidle');
   await page.getByLabel('Título').fill(title);
@@ -303,32 +347,36 @@ test('player curte e comenta, admin modera o comentário', async ({
   await expect(
     playerPage.getByRole('button', { name: /Descurtir · 1/ }),
   ).toBeVisible();
-  await playerPage
-    .getByLabel('Escreva um comentário')
-    .fill('Comentário de QA.');
+  await playerPage.getByLabel('Escreva um comentário').fill(commentBody);
   await playerPage.getByRole('button', { name: 'Comentar' }).click();
-  await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
+  await expect(playerPage.getByText(commentBody)).toBeVisible();
 
+  await page.goto('/login');
+  await page.waitForLoadState('networkidle');
+  await page.getByLabel('E-mail').fill(adminEmail ?? '');
+  await page.getByLabel('Senha').fill(adminPassword ?? '');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page).toHaveURL(/\/account$/);
   await page.goto('/admin/comments');
   await page.waitForLoadState('networkidle');
   const comment = page
     .locator('.comment-card')
-    .filter({ hasText: 'Comentário de QA.' });
+    .filter({ hasText: commentBody });
   await comment.getByLabel('Motivo da decisão').fill('Moderação de QA');
   await comment.getByRole('button', { name: 'Ocultar' }).click();
   await expect(
-    page.locator('.comment-card').filter({ hasText: 'Comentário de QA.' }),
+    page.locator('.comment-card').filter({ hasText: commentBody }),
   ).toContainText('Oculto');
   await playerPage.reload();
-  await expect(playerPage.getByText('Comentário de QA.')).toHaveCount(0);
+  await expect(playerPage.getByText(commentBody)).toHaveCount(0);
 
   const hiddenComment = page
     .locator('.comment-card')
-    .filter({ hasText: 'Comentário de QA.' });
+    .filter({ hasText: commentBody });
   await hiddenComment.getByLabel('Motivo da decisão').fill('Conteúdo revisado');
   await hiddenComment.getByRole('button', { name: 'Restaurar' }).click();
   await playerPage.reload();
-  await expect(playerPage.getByText('Comentário de QA.')).toBeVisible();
+  await expect(playerPage.getByText(commentBody)).toBeVisible();
   await playerPage.close();
 });
 

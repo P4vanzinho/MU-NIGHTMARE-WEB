@@ -410,4 +410,22 @@ Entregue:
 - Estados terminais impedem transições posteriores fora de ordem.
 - Histórico de pedidos do player exibido na própria loja.
 
-Pendente: definir política final de expiração/cancelamento e conectar um provedor de pagamento somente em uma fase posterior aprovada. Nenhum pedido entrega benefício ou movimenta saldo nesta fase.
+Pendente: definir política final de expiração/cancelamento e conectar um provedor de pagamento somente em uma fase posterior aprovada. A entrega abaixo continua restrita ao simulador.
+
+## Fase 21 — entrega simulada de benefícios
+
+Estado: implementada no simulador; integração com o OpenMU real continua bloqueada.
+
+Entregue:
+
+- Pagamento simulado confirmado cria um registro em `simulated_benefit_grant` com referência única do pedido.
+- Pacotes de Nightmare Coins incrementam a carteira do comprador na mesma transação do pedido.
+- Reenvio do mesmo evento ou confirmação duplicada não gera um segundo crédito.
+- O fluxo E2E cobre cadastro, confirmação de e-mail, compra e validação do saldo inicial mais o benefício.
+- Migration `0013_cute_sunspot.sql` criada e aplicada no PostgreSQL local.
+
+Limitações documentadas:
+
+- A carteira ainda é uma projeção local; nenhuma escrita é enviada ao OpenMU.
+- Benefícios VIP são registrados no ledger, mas ainda não alteram regras reais de acesso ou personagem.
+- Mercado entre jogadores, PIX/Mercado Pago, reserva configurável e reconciliação externa continuam fora do escopo.

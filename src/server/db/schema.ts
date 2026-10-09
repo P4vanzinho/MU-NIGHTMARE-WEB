@@ -226,3 +226,17 @@ export const simulatedPaymentEvent = pgTable('simulated_payment_event', {
   status: text('status').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
 });
+
+export const simulatedBenefitGrant = pgTable('simulated_benefit_grant', {
+  id: text('id').primaryKey(),
+  reference: text('reference').notNull().unique(),
+  orderId: text('order_id')
+    .notNull()
+    .references(() => simulatedOrder.id),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => user.id),
+  benefit: text('benefit').notNull(),
+  status: text('status').notNull().default('granted'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+});

@@ -92,6 +92,13 @@
       "when": 1791546523070,
       "tag": "0012_lying_red_shift",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791549488253,
+      "tag": "0013_cute_sunspot",
+      "breakpoints": true
     }
   ]
 }

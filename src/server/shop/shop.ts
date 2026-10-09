@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import {
   getCurrentSession,
@@ -8,8 +8,10 @@ import {
 import { db } from '#/server/db/client';
 import {
   shopProduct,
+  simulatedBenefitGrant,
   simulatedOrder,
   simulatedPaymentEvent,
+  simulatedPlayerWallet,
 } from '#/server/db/schema';
 
 const defaults = [
@@ -206,6 +208,48 @@ export const simulatePaymentEvent = createServerFn({ method: 'POST' })
         .set({ status: data.status, updatedAt: new Date() })
         .where(eq(simulatedOrder.id, order.id))
         .returning({ status: simulatedOrder.status });
+
+      if (data.status === 'confirmed') {
+        const [product] = await tx
+          .select({ benefit: shopProduct.benefit })
+          .from(shopProduct)
+          .where(eq(shopProduct.id, order.productId))
+          .limit(1);
+        if (!product) throw new Error('Produto do pedido não encontrado.');
+
+        const [grant] = await tx
+          .insert(simulatedBenefitGrant)
+          .values({
+            id: crypto.randomUUID(),
+            reference: `order:${order.id}`,
+            orderId: order.id,
+            ownerId: order.buyerId,
+            benefit: product.benefit,
+            status: 'granted',
+            createdAt: new Date(),
+          })
+          .onConflictDoNothing({ target: simulatedBenefitGrant.reference })
+          .returning({ id: simulatedBenefitGrant.id });
+
+        const coins = Number(product.benefit.match(/\d+/)?.[0] ?? 0);
+        if (grant && coins > 0 && product.benefit.includes('Nightmare Coins')) {
+          await tx
+            .insert(simulatedPlayerWallet)
+            .values({
+              ownerId: order.buyerId,
+              nightmareCoins: coins,
+              vipLevel: 0,
+              updatedAt: new Date(),
+            })
+            .onConflictDoUpdate({
+              target: simulatedPlayerWallet.ownerId,
+              set: {
+                nightmareCoins: sql`${simulatedPlayerWallet.nightmareCoins} + ${coins}`,
+                updatedAt: new Date(),
+              },
+            });
+        }
+      }
       return updated;
     });
   });
