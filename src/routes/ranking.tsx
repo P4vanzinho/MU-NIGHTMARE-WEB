@@ -1,10 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { useState } from 'react';
+import { z } from 'zod';
 
 import { getRanking } from '#/server/ranking/ranking';
 import { PageShell } from '#/shared/layout/page-shell';
 
 export const Route = createFileRoute('/ranking')({
+  validateSearch: z.object({ search: z.string().optional() }),
   loader: ({ location }) =>
     getRanking({
       data: {
@@ -22,16 +24,11 @@ function RankingPage() {
       <section className="content-section ranking-page">
         <p className="eyebrow">RANKING</p>
         <h1>Os melhores do Nightmare</h1>
-        <form
-          className="ranking-search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            window.location.href = `/ranking?search=${encodeURIComponent(search)}`;
-          }}
-        >
+        <form className="ranking-search" action="/ranking" method="get">
           <label>
             Buscar jogador ou classe
             <input
+              name="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Ex.: Raven"
@@ -62,6 +59,7 @@ function RankingPage() {
           )}
         </div>
       </section>
+      <Outlet />
     </PageShell>
   );
 }
