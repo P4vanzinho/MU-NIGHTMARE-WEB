@@ -504,6 +504,28 @@ Após definir recebimento, simular vínculo de vendedor, compra em reais, reserv
 - [ ] Provedor, comissão, recebimento e confirmação tardia são aprovados antes, sem herdar os 5% do mock.
 - [ ] Estorno/contestação e item já transferido são tratados; nenhuma cobrança real; documentar integrações externas ausentes.
 
+## Phase 25: Fechamento e hardening do simulador local
+
+**Objetivo:** concluir os fluxos locais que não dependem do OpenMU ou de um
+provedor financeiro real, deixando as fronteiras de integração observáveis e
+testáveis.
+
+**Escopo:**
+
+- Liquidar saques solicitados no painel administrativo.
+- Expirar reservas vencidas com devolução idempotente do item.
+- Permitir contestação do comprador e decisão administrativa.
+- Adicionar auditoria, logs estruturados e testes de concorrência para o
+  marketplace.
+- Validar reinício do PostgreSQL, eventos duplicados e falhas de entrega.
+
+**Fora do escopo:** OAuth/webhooks reais, entrega real pelo OpenMU, cobrança,
+chargeback e produção.
+
+**Critério de aceite:** cada transição financeira possui estado persistido,
+autorização, operação idempotente, evidência de teste e pendência documentada
+quando exigir o OpenMU ou o provedor real.
+
 ## Execução e rastreabilidade
 
 Executar uma fase por vez, com demonstração do percurso completo e critérios de aceite verificados antes de declarar conclusão. As caixas deste documento começam pendentes; planejamento não comprova implementação. Registrar evidências, decisões e lacunas por fase.

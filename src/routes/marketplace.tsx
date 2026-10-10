@@ -12,6 +12,7 @@ import {
   getSellerCashBalance,
   getSellerPaymentAccount,
   initiateCashOrder,
+  openCashDispute,
   requestCashPayout,
   simulateCashPayment,
 } from '#/server/marketplace/cash';
@@ -90,6 +91,9 @@ function MarketplacePage() {
   const [listingPrice, setListingPrice] = useState('');
   const [cashItem, setCashItem] = useState('');
   const [cashPrice, setCashPrice] = useState('');
+  const [disputeReasons, setDisputeReasons] = useState<Record<string, string>>(
+    {},
+  );
   const [offerAmounts, setOfferAmounts] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -191,6 +195,26 @@ function MarketplacePage() {
         payoutError instanceof Error
           ? payoutError.message
           : 'Não foi possível solicitar o saque.',
+      );
+    }
+  }
+
+  async function dispute(orderId: string) {
+    setError(null);
+    try {
+      await openCashDispute({
+        data: {
+          orderId,
+          reason: disputeReasons[orderId] ?? '',
+        },
+      });
+      setMessage('Contestação aberta para análise administrativa.');
+      window.location.reload();
+    } catch (disputeError) {
+      setError(
+        disputeError instanceof Error
+          ? disputeError.message
+          : 'Não foi possível abrir a contestação.',
       );
     }
   }
@@ -546,6 +570,29 @@ function MarketplacePage() {
                       })}{' '}
                       · {order.status}
                     </span>
+                    {order.status === 'delivered' && (
+                      <>
+                        <textarea
+                          aria-label={`Motivo da contestação ${order.id}`}
+                          minLength={10}
+                          placeholder="Descreva o problema da entrega"
+                          value={disputeReasons[order.id] ?? ''}
+                          onChange={(event) =>
+                            setDisputeReasons((current) => ({
+                              ...current,
+                              [order.id]: event.target.value,
+                            }))
+                          }
+                        />
+                        <button
+                          className="button button-secondary"
+                          type="button"
+                          onClick={() => dispute(order.id)}
+                        >
+                          Abrir contestação
+                        </button>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

@@ -547,3 +547,23 @@ Pendências explícitas para a integração real:
   produção deverá respeitar o relógio e as evidências do provedor.
 - Revisão de chargeback e reserva de segurança ainda precisam de percentuais e
   prazos definidos com o provedor.
+
+## Fase 25 — fechamento e hardening do simulador local
+
+Estado: em execução local.
+
+Entregue nesta etapa:
+
+- Painel administrativo para liquidar saques solicitados no simulador.
+- Rotina administrativa idempotente para expirar reservas vencidas e devolver
+  o item ao cofre do vendedor.
+- Abertura de contestação pelo comprador diretamente no pedido entregue.
+- Registro das ações de entrega, contestação, reembolso, liberação e saque no
+  mesmo modelo persistido do marketplace.
+
+Próximos itens da fase:
+
+- Automatizar o percurso E2E completo do escrow sem depender de navegação após
+  reload e cobrir concorrência entre compradores.
+- Adicionar auditoria e logs estruturados para ações administrativas.
+- Exercitar reinício do banco, duplicação de eventos e falhas de entrega.

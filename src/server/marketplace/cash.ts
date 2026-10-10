@@ -491,6 +491,58 @@ export const settleCashPayout = createServerFn({ method: 'POST' })
     return payout;
   });
 
+export const getAdminCashPayouts = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    await getRequiredAdminSession();
+    return db
+      .select()
+      .from(simulatedCashPayout)
+      .orderBy(desc(simulatedCashPayout.requestedAt));
+  },
+);
+
+export const expireCashReservations = createServerFn({
+  method: 'POST',
+}).handler(async () => {
+  await getRequiredAdminSession();
+  const now = new Date();
+  return db.transaction(async (tx) => {
+    const expired = await tx
+      .select()
+      .from(simulatedCashOrder)
+      .where(
+        and(
+          eq(simulatedCashOrder.status, 'reserved'),
+          sql`${simulatedCashOrder.reservationExpiresAt} <= ${now}`,
+        ),
+      );
+    for (const order of expired) {
+      const [listing] = await tx
+        .select()
+        .from(simulatedMarketplaceListing)
+        .where(eq(simulatedMarketplaceListing.id, order.listingId))
+        .limit(1);
+      if (listing) {
+        await tx
+          .update(simulatedMarketplaceListing)
+          .set({ status: 'active', updatedAt: now })
+          .where(eq(simulatedMarketplaceListing.id, listing.id));
+        await returnListingItem(
+          tx,
+          listing.sellerId,
+          listing.itemName,
+          listing.quantity,
+        );
+      }
+      await tx
+        .update(simulatedCashOrder)
+        .set({ status: 'expired', updatedAt: now })
+        .where(eq(simulatedCashOrder.id, order.id));
+    }
+    return { expired: expired.length };
+  });
+});
+
 export const openCashDispute = createServerFn({ method: 'POST' })
   .validator(
     z.object({
