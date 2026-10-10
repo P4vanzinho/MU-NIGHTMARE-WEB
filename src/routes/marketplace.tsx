@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { getCurrentSession } from '#/server/auth/session';
@@ -83,6 +83,7 @@ export const Route = createFileRoute('/marketplace')({
 
 function MarketplacePage() {
   const initial = Route.useLoaderData();
+  const router = useRouter();
   const [market, setMarket] = useState(initial.market);
   const [query, setQuery] = useState('');
   const [minPrice, setMinPrice] = useState('');
@@ -134,7 +135,7 @@ function MarketplacePage() {
     try {
       await connectSimulatedPaymentAccount();
       setMessage('Conta Mercado Pago simulada conectada.');
-      window.location.reload();
+      await router.invalidate();
     } catch (connectError) {
       setError(
         connectError instanceof Error
@@ -152,7 +153,7 @@ function MarketplacePage() {
         data: { itemId: cashItem, priceCents: Number(cashPrice) },
       });
       setMessage('Anúncio em reais criado.');
-      window.location.reload();
+      await router.invalidate();
     } catch (cashError) {
       setError(
         cashError instanceof Error
@@ -174,7 +175,7 @@ function MarketplacePage() {
         },
       });
       setMessage('Pagamento reservado; aguardando entrega simulada.');
-      window.location.reload();
+      await router.invalidate();
     } catch (cashError) {
       setError(
         cashError instanceof Error
@@ -189,7 +190,7 @@ function MarketplacePage() {
     try {
       await requestCashPayout({ data: { payoutId } });
       setMessage('Saque solicitado no simulador.');
-      window.location.reload();
+      await router.invalidate();
     } catch (payoutError) {
       setError(
         payoutError instanceof Error
@@ -209,7 +210,7 @@ function MarketplacePage() {
         },
       });
       setMessage('Contestação aberta para análise administrativa.');
-      window.location.reload();
+      await router.invalidate();
     } catch (disputeError) {
       setError(
         disputeError instanceof Error

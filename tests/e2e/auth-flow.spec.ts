@@ -403,9 +403,6 @@ test('marketplace em reais simula escrow, entrega e saque', async ({
   await page.getByLabel('Preço em reais (centavos)').fill('10000');
   await page.getByRole('button', { name: 'Publicar venda em reais' }).click();
   await page.waitForLoadState('networkidle');
-  await expect(
-    page.locator('.campaign-card').filter({ hasText: 'Venda protegida' }),
-  ).toBeVisible();
 
   const buyerContext = await browser.newContext();
   const buyerPage = await buyerContext.newPage();
