@@ -358,7 +358,7 @@ test('marketplace em reais simula escrow, entrega e saque', async ({
 }) => {
   test.skip(
     true,
-    'Fluxo administrativo do simulador será validado no painel dedicado.',
+    'Fluxo financeiro completo depende de estabilização da navegação após reload.',
   );
   test.skip(
     !process.env.E2E_ADMIN_EMAIL || !process.env.E2E_ADMIN_PASSWORD,
@@ -396,6 +396,7 @@ test('marketplace em reais simula escrow, entrega e saque', async ({
     .getByRole('button', { name: 'Conectar Mercado Pago simulado' })
     .click();
   await page.waitForURL(/\/marketplace$/, { timeout: 10000 });
+  await page.waitForLoadState('domcontentloaded');
   await page.waitForLoadState('networkidle');
   const cashSelect = page.getByLabel('Item do cofre').last();
   await cashSelect.selectOption({ index: 1 });

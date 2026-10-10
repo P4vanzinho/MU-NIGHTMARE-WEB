@@ -8,6 +8,7 @@ import {
 } from '#/server/auth/session';
 import { db } from '#/server/db/client';
 import {
+  adminAuditEvent,
   simulatedCashDispute,
   simulatedCashOrder,
   simulatedCashPaymentEvent,
@@ -20,6 +21,23 @@ import {
 
 const RESERVATION_MINUTES = 15;
 const CONTESTATION_HOURS = 24;
+
+async function recordCashAudit(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  actorUserId: string,
+  targetUserId: string,
+  action: string,
+  reason: string,
+) {
+  await tx.insert(adminAuditEvent).values({
+    id: crypto.randomUUID(),
+    actorUserId,
+    targetUserId,
+    action,
+    reason,
+    createdAt: new Date(),
+  });
+}
 
 async function returnListingItem(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
@@ -317,7 +335,7 @@ export const simulateCashPayment = createServerFn({ method: 'POST' })
 export const simulateCashDelivery = createServerFn({ method: 'POST' })
   .validator(z.object({ orderId: z.string().min(1) }))
   .handler(async ({ data }) => {
-    await getRequiredAdminSession();
+    const admin = await getRequiredAdminSession();
     return db.transaction(async (tx) => {
       const [order] = await tx
         .select({
@@ -378,6 +396,13 @@ export const simulateCashDelivery = createServerFn({ method: 'POST' })
             updatedAt: now,
           },
         });
+      await recordCashAudit(
+        tx,
+        admin.user.id,
+        order.order.sellerId,
+        'cash_order.delivery_confirmed',
+        `Entrega simulada confirmada para ${order.order.id}`,
+      );
       return { status: 'delivered', contestationEndsAt: contestationEnds };
     });
   });
@@ -387,7 +412,7 @@ export const releaseCashOrder = createServerFn({ method: 'POST' })
     z.object({ orderId: z.string().min(1), force: z.boolean().default(false) }),
   )
   .handler(async ({ data }) => {
-    await getRequiredAdminSession();
+    const admin = await getRequiredAdminSession();
     return db.transaction(async (tx) => {
       const [order] = await tx
         .select()
@@ -424,6 +449,13 @@ export const releaseCashOrder = createServerFn({ method: 'POST' })
           updatedAt: new Date(),
         })
         .where(eq(simulatedSellerBalance.ownerId, order.sellerId));
+      await recordCashAudit(
+        tx,
+        admin.user.id,
+        order.sellerId,
+        'cash_order.released',
+        `Contestação encerrada para ${order.id}`,
+      );
       return { status: 'available' };
     });
   });
@@ -476,7 +508,7 @@ export const getMyCashPayouts = createServerFn({ method: 'GET' }).handler(
 export const settleCashPayout = createServerFn({ method: 'POST' })
   .validator(z.object({ payoutId: z.string().min(1) }))
   .handler(async ({ data }) => {
-    await getRequiredAdminSession();
+    const admin = await getRequiredAdminSession();
     const [payout] = await db
       .update(simulatedCashPayout)
       .set({ status: 'paid', settledAt: new Date() })
@@ -488,6 +520,14 @@ export const settleCashPayout = createServerFn({ method: 'POST' })
       )
       .returning();
     if (!payout) throw new Error('Saque solicitado não encontrado.');
+    await db.insert(adminAuditEvent).values({
+      id: crypto.randomUUID(),
+      actorUserId: admin.user.id,
+      targetUserId: payout.sellerId,
+      action: 'cash_payout.settled',
+      reason: `Saque simulado ${payout.id} liquidado`,
+      createdAt: new Date(),
+    });
     return payout;
   });
 
@@ -504,7 +544,7 @@ export const getAdminCashPayouts = createServerFn({ method: 'GET' }).handler(
 export const expireCashReservations = createServerFn({
   method: 'POST',
 }).handler(async () => {
-  await getRequiredAdminSession();
+  const admin = await getRequiredAdminSession();
   const now = new Date();
   return db.transaction(async (tx) => {
     const expired = await tx
@@ -538,6 +578,13 @@ export const expireCashReservations = createServerFn({
         .update(simulatedCashOrder)
         .set({ status: 'expired', updatedAt: now })
         .where(eq(simulatedCashOrder.id, order.id));
+      await recordCashAudit(
+        tx,
+        admin.user.id,
+        order.sellerId,
+        'cash_order.expired',
+        `Reserva expirada para ${order.id}`,
+      );
     }
     return { expired: expired.length };
   });
@@ -616,7 +663,7 @@ export const resolveCashDispute = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await getRequiredAdminSession();
+    const admin = await getRequiredAdminSession();
     return db.transaction(async (tx) => {
       const [dispute] = await tx
         .select({
@@ -670,6 +717,13 @@ export const resolveCashDispute = createServerFn({ method: 'POST' })
         .set({ status: 'resolved', resolution: data.outcome, resolvedAt: now })
         .where(eq(simulatedCashDispute.id, dispute.dispute.id))
         .returning();
+      await recordCashAudit(
+        tx,
+        admin.user.id,
+        dispute.order.sellerId,
+        `cash_dispute.${data.outcome}`,
+        `Disputa ${dispute.dispute.id} resolvida como ${data.outcome}`,
+      );
       return resolved;
     });
   });
